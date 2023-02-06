@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "871894259823",
+    "project_id": "adlinc-community-e391a",
+    "storage_bucket": "adlinc-community-e391a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:871894259823:android:0aa9bfab4d8ca9eb0dd59a",
+        "android_client_info": {
+          "package_name": "com.community.adlinc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "871894259823-38m4vgca6fnar0tm8mhhrq0u0kv4l60n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.community.adlinc",
+            "certificate_hash": "803cb9a0f86a8cae98ae86c2fee874ca3d61f164"
+          }
+        },
+        {
+          "client_id": "871894259823-0lpc0tevvsb35aeq3ojtdq4o2os48p99.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANBLmOODXkoglo2c77Zri8ErkiN0k8KBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "871894259823-0lpc0tevvsb35aeq3ojtdq4o2os48p99.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
