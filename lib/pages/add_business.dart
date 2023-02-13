@@ -14,6 +14,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../extras/variables.dart';
+import 'add_listing.dart';
 import 'home.dart';
 import 'dart:io';
 import '../extras/colors.dart';
@@ -27,8 +28,8 @@ class AddBusiness extends StatefulWidget {
 
 class _AddBusinessState extends State<AddBusiness> {
   ///Form Variables
-  late String name, businessEmail, phone, logo = logoURL, address, category = 'Please select your business category', subCategory = 'Please select your business sub-category';
-  List<String> categoriesList = ['Please select your business category'];
+  late String name, businessEmail, phone, logo = logoURL, address, group = '', category = 'Please select your business Type', subCategory = 'Please select your business sub-category';
+  List<String> categoriesList = ['Please select your business Type'];
   List<String> subCategoriesList = ['Please select your business sub-category'];
   List<DocumentSnapshot> categories = [];
   List<DocumentSnapshot> subCategories = [];
@@ -70,6 +71,7 @@ class _AddBusinessState extends State<AddBusiness> {
             categoriesList.add(categ['name']);
             categories = documents;
           });
+          print(categ['name']);
         });
       } else if(level == 'sub'){
         documents.forEach((categ) {
@@ -86,6 +88,8 @@ class _AddBusinessState extends State<AddBusiness> {
 
   ///When Add Business Button is pressed
   void onRegisterBusinessPress() async{
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => AddListing(bizID: "documents[0].id", group: 'B&B',)));
     ///Unfocus all nodes
     focusNodeUserEmail.unfocus();
     focusNodeUserName.unfocus();
@@ -103,13 +107,15 @@ class _AddBusinessState extends State<AddBusiness> {
 
     ///Check if business with email exists on Firebase
     if(documents.length != 0){
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AddListing(bizID: documents[0].id, group: group,)));
       Fluttertoast.showToast(msg: "Business already exists, please use login or forgot password.");
     } else {
       ///Check if T&C's are Accepted
-      if(showAcceptTC){
+      if(showAcceptTC && category != 'Please select your business Type' && subCategory != 'Please select your business sub-category'){
         postData();
       } else {
-        Fluttertoast.showToast(msg: "Please accept the terms and conditions to proceed.");
+        Fluttertoast.showToast(msg: "Please accept the terms and conditions to proceed and select categories for your business.");
       }
     }
   }
@@ -134,9 +140,41 @@ class _AddBusinessState extends State<AddBusiness> {
       Fluttertoast.showToast(msg: "Business Registration Successful");
 
       ///Navigate to Home Page
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AddListing(bizID: docRef.id, group: group,)));
 
     });
+  }
+
+  void setGroup(String category){
+    switch (category){
+      case 'B&B' 'Hotel' 'Private House' 'Private Room':
+        {
+          this.setState(() {
+            group = 'accommodation';
+          });
+        }
+        break;
+      case 'Restaurant':
+        {
+          this.setState(() {
+            group = 'restuarant';
+          });
+        }
+        break;
+      case 'FUN & GAMES':
+        {
+          this.setState(() {
+            group = 'games';
+          });
+        }
+        break;
+      case 'SELF-LOVE':
+        {
+          this.setState(() {
+            group = 'self';
+          });
+        }
+    }
   }
 
   ///Select Business Logo
@@ -209,11 +247,24 @@ class _AddBusinessState extends State<AddBusiness> {
       subCategory = 'Please select your business sub-category';
       subCategoriesList = ['Please select your business sub-category'];
     });
-    subCategories.forEach((element) {
-      if(element['from'] == value){
-        subCategoriesList.add(element['name']);
-      }
-    });
+    if(value == 'Please select your business Type'){
+      this.setState(() {
+        subCategoriesList = [];
+      });
+    } else {
+      subCategories.forEach((element) {
+        if(element['name'] == null){
+
+          print(element.id);
+        }
+
+        if(element['from'] == value){
+          subCategoriesList.add(element['name'] == null ?'Test' :element['name']);
+        }
+      });
+    }
+
+
   }
 
   ///On Main Category Drop Down Select
@@ -234,13 +285,22 @@ class _AddBusinessState extends State<AddBusiness> {
         items: categoriesList.map<DropdownMenuItem<String>>((String element) {
       return DropdownMenuItem<String>(
       value: element,
-        child: Text(element),
+        child: Row(
+          children: [
+            Text(element),
+            element == 'Please select your business category'
+            ? Container()
+            :
+            subMenuCategoryDropDown(element),
+          ],
+        ),
       );
     }).toList(),
         onChanged: (String? newValue){
           mainCategorySelect(newValue);
         });
   }
+
   Widget subCategoryDropDown(){
     return DropdownButton<String>(
         value: subCategory,
@@ -253,8 +313,30 @@ class _AddBusinessState extends State<AddBusiness> {
         onChanged: (String? newValue){
           this.setState(() {
             subCategory = newValue!;
-          });;
+          });
+          setGroup(newValue!);
         });
+  }
+  Widget subMenuCategoryDropDown(String cate){
+    filterSubCategories(cate);
+    List<PopupMenuEntry<dynamic>> myList = [];
+    print(subCategoriesList);
+    subCategoriesList.forEach((element) {
+      myList.add(
+          PopupMenuItem(child: Text(element))
+      );
+    });
+
+    return PopupMenuButton<dynamic>(
+        itemBuilder: (context) =>
+        myList,
+      onSelected: (value){
+          this.setState(() {
+            subCategory = value;
+          });
+          setGroup(value!);
+      },
+    );
   }
 
   ///Initial State
@@ -454,7 +536,9 @@ class _AddBusinessState extends State<AddBusiness> {
 
                       ///Category selection
                       categoryDropDown(),
-                      subCategoryDropDown(),
+                      //subCategoryDropDown(),
+
+
 
                       ///Accept terms and conditions
                       Row(
@@ -547,6 +631,7 @@ class _AddBusinessState extends State<AddBusiness> {
                           ),
                           //color: colors[2],
                           onPressed: (){
+
                             registerFormKey.currentState!.validate()
                                 ? onRegisterBusinessPress()
                                 : Fluttertoast.showToast(msg: "Please fill in the missing or incorrect information.");

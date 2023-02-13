@@ -1,3 +1,4 @@
+import 'package:adlinc/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -58,7 +59,7 @@ class _LoginState extends State<Login> {
       await prefs.setString('email', documents[0]['email']);
 
       Fluttertoast.showToast(msg: "Login successful");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => SimpleAppBarPopupMenuButton()));
     } else {
       Fluttertoast.showToast(msg: "Login unsuccessful");
     }
