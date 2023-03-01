@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../extras/data.dart';
 import '../extras/variables.dart';
 import 'home.dart';
 import 'dart:io';
@@ -44,8 +45,6 @@ class _RegisterState extends State<Register> {
   final FocusNode focusNodePhone= FocusNode();
   final FocusNode focusNodeAddress = FocusNode();
 
-  ///Shared Preferences instance
-  late SharedPreferences prefs;
 
   ///Toggle show password
   bool showPassword = false;
@@ -119,7 +118,7 @@ class _RegisterState extends State<Register> {
     ///Set OnLoading Screen
     setState(() {
       isLoading = true;
-      loadigScreenMsg = "Uploading profile picture...";
+      loadingScreenMsg = "Uploading profile picture...";
     });
 
     ///Shared Preferences Instance

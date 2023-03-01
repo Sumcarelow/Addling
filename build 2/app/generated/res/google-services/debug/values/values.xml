@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">871894259823-0lpc0tevvsb35aeq3ojtdq4o2os48p99.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">871894259823</string>
+    <string name="google_api_key" translatable="false">AIzaSyANBLmOODXkoglo2c77Zri8ErkiN0k8KBY</string>
+    <string name="google_app_id" translatable="false">1:871894259823:android:0aa9bfab4d8ca9eb0dd59a</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyANBLmOODXkoglo2c77Zri8ErkiN0k8KBY</string>
+    <string name="google_storage_bucket" translatable="false">adlinc-community-e391a.appspot.com</string>
+    <string name="project_id" translatable="false">adlinc-community-e391a</string>
+</resources>

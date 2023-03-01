@@ -1,0 +1,104 @@
+com.community.adlinc.app-jetified-lifecycle-livedata-core-ktx-2.5.1-0 /Users/samkelontobekozondi/.gradle/caches/transforms-3/002af8e3aca0e1489fef201448dbc27a/transformed/jetified-lifecycle-livedata-core-ktx-2.5.1/res
+com.community.adlinc.app-jetified-lifecycle-process-2.4.1-1 /Users/samkelontobekozondi/.gradle/caches/transforms-3/00a03f9359661975c4bdbf10400aa4f9/transformed/jetified-lifecycle-process-2.4.1/res
+com.community.adlinc.app-webkit-1.5.0-2 /Users/samkelontobekozondi/.gradle/caches/transforms-3/034b2e35dad6b3d7aeb2bcb5eba98825/transformed/webkit-1.5.0/res
+com.community.adlinc.app-jetified-financial-connections-20.15.4-3 /Users/samkelontobekozondi/.gradle/caches/transforms-3/0766c44c1314e02951f6c87d08e21d24/transformed/jetified-financial-connections-20.15.4/res
+com.community.adlinc.app-jetified-play-services-auth-16.0.1-4 /Users/samkelontobekozondi/.gradle/caches/transforms-3/081725acad47873bdeb89ca65b233ff2/transformed/jetified-play-services-auth-16.0.1/res
+com.community.adlinc.app-jetified-play-services-wallet-19.1.0-5 /Users/samkelontobekozondi/.gradle/caches/transforms-3/0c96216cd27db0d7f571f64092a79a28/transformed/jetified-play-services-wallet-19.1.0/res
+com.community.adlinc.app-jetified-ui-viewbinding-1.3.0-6 /Users/samkelontobekozondi/.gradle/caches/transforms-3/0cac7e11d90b8ddb0d45ad074c507b34/transformed/jetified-ui-viewbinding-1.3.0/res
+com.community.adlinc.app-jetified-lifecycle-runtime-ktx-2.5.1-7 /Users/samkelontobekozondi/.gradle/caches/transforms-3/0ebc7ef106aad6e58d847d84a03d9670/transformed/jetified-lifecycle-runtime-ktx-2.5.1/res
+com.community.adlinc.app-jetified-appcompat-resources-1.5.1-8 /Users/samkelontobekozondi/.gradle/caches/transforms-3/0fb8dc0bf5b41a223df85ce2bad06207/transformed/jetified-appcompat-resources-1.5.1/res
+com.community.adlinc.app-lifecycle-runtime-2.5.1-9 /Users/samkelontobekozondi/.gradle/caches/transforms-3/13d76c6548da8a263b06242d0db3fc2d/transformed/lifecycle-runtime-2.5.1/res
+com.community.adlinc.app-jetified-ui-text-1.3.0-10 /Users/samkelontobekozondi/.gradle/caches/transforms-3/1439b43a82ef60ab25f34f7377ea3577/transformed/jetified-ui-text-1.3.0/res
+com.community.adlinc.app-navigation-runtime-2.5.3-11 /Users/samkelontobekozondi/.gradle/caches/transforms-3/16f815fca63853c0fa0851b673a6328f/transformed/navigation-runtime-2.5.3/res
+com.community.adlinc.app-lifecycle-viewmodel-2.5.1-12 /Users/samkelontobekozondi/.gradle/caches/transforms-3/18cec028ab38b26e441225a08c764d56/transformed/lifecycle-viewmodel-2.5.1/res
+com.community.adlinc.app-jetified-places-2.5.0-13 /Users/samkelontobekozondi/.gradle/caches/transforms-3/1da605228ea238b886a918fb769e8f78/transformed/jetified-places-2.5.0/res
+com.community.adlinc.app-jetified-savedstate-ktx-1.2.0-14 /Users/samkelontobekozondi/.gradle/caches/transforms-3/27ccbab68107dd09edae92aca6ce900c/transformed/jetified-savedstate-ktx-1.2.0/res
+com.community.adlinc.app-jetified-material-ripple-1.3.0-15 /Users/samkelontobekozondi/.gradle/caches/transforms-3/288812bb677a09a16d3c6c5f63531375/transformed/jetified-material-ripple-1.3.0/res
+com.community.adlinc.app-jetified-viewpager2-1.0.0-16 /Users/samkelontobekozondi/.gradle/caches/transforms-3/2e1519fbe296967f17525e5a88fd37a6/transformed/jetified-viewpager2-1.0.0/res
+com.community.adlinc.app-jetified-window-1.0.0-beta04-17 /Users/samkelontobekozondi/.gradle/caches/transforms-3/3ae4721f7049d6b3e5a3b86d501edcb1/transformed/jetified-window-1.0.0-beta04/res
+com.community.adlinc.app-drawerlayout-1.1.1-18 /Users/samkelontobekozondi/.gradle/caches/transforms-3/3e22eb878ffacbe726d7ad820e425753/transformed/drawerlayout-1.1.1/res
+com.community.adlinc.app-jetified-annotation-experimental-1.3.0-19 /Users/samkelontobekozondi/.gradle/caches/transforms-3/406d5923702b7ee7f7de3a752074660e/transformed/jetified-annotation-experimental-1.3.0/res
+com.community.adlinc.app-jetified-ui-util-1.3.0-20 /Users/samkelontobekozondi/.gradle/caches/transforms-3/410a7b5acc451965f4a38af3e636e4df/transformed/jetified-ui-util-1.3.0/res
+com.community.adlinc.app-browser-1.4.0-21 /Users/samkelontobekozondi/.gradle/caches/transforms-3/45f13ddab2206d104dbdf2f62f49e8eb/transformed/browser-1.4.0/res
+com.community.adlinc.app-navigation-runtime-ktx-2.5.3-22 /Users/samkelontobekozondi/.gradle/caches/transforms-3/4cb5c208982946ad541640d41324310e/transformed/navigation-runtime-ktx-2.5.3/res
+com.community.adlinc.app-jetified-activity-ktx-1.6.1-23 /Users/samkelontobekozondi/.gradle/caches/transforms-3/4d6aabc09a5195f526312e053f0a18e5/transformed/jetified-activity-ktx-1.6.1/res
+com.community.adlinc.app-jetified-firebase-common-20.1.2-24 /Users/samkelontobekozondi/.gradle/caches/transforms-3/523b63a4ab5ea4eec97f789c673b8475/transformed/jetified-firebase-common-20.1.2/res
+com.community.adlinc.app-jetified-animation-core-1.3.0-25 /Users/samkelontobekozondi/.gradle/caches/transforms-3/529e6d69dfb41736f6cc881c74c68034/transformed/jetified-animation-core-1.3.0/res
+com.community.adlinc.app-core-1.9.0-26 /Users/samkelontobekozondi/.gradle/caches/transforms-3/561eecc97acafa6128ea5c9e8de0c4a2/transformed/core-1.9.0/res
+com.community.adlinc.app-jetified-savedstate-1.2.0-27 /Users/samkelontobekozondi/.gradle/caches/transforms-3/5695429e1c5aba96cb53e0e2a0ec7c7e/transformed/jetified-savedstate-1.2.0/res
+com.community.adlinc.app-cardview-1.0.0-28 /Users/samkelontobekozondi/.gradle/caches/transforms-3/5896cb5598bc518f320eedece7a748b1/transformed/cardview-1.0.0/res
+com.community.adlinc.app-material-1.6.0-29 /Users/samkelontobekozondi/.gradle/caches/transforms-3/59d45810951fffa1a626054141b4d968/transformed/material-1.6.0/res
+com.community.adlinc.app-transition-1.2.0-30 /Users/samkelontobekozondi/.gradle/caches/transforms-3/606f0b94b7e3cc2f31c482ef791bd53e/transformed/transition-1.2.0/res
+com.community.adlinc.app-jetified-payments-model-20.15.4-31 /Users/samkelontobekozondi/.gradle/caches/transforms-3/617909f9838c3ab1619efcde157565c5/transformed/jetified-payments-model-20.15.4/res
+com.community.adlinc.app-navigation-common-ktx-2.5.3-32 /Users/samkelontobekozondi/.gradle/caches/transforms-3/684862740c7994076cb35bcb5779f14a/transformed/navigation-common-ktx-2.5.3/res
+com.community.adlinc.app-jetified-lifecycle-viewmodel-ktx-2.5.1-33 /Users/samkelontobekozondi/.gradle/caches/transforms-3/684a046aa9e48e811ce47536de3cf825/transformed/jetified-lifecycle-viewmodel-ktx-2.5.1/res
+com.community.adlinc.app-jetified-foundation-1.3.0-34 /Users/samkelontobekozondi/.gradle/caches/transforms-3/6be58520066a17bd6e7ec83d9ca8b3fe/transformed/jetified-foundation-1.3.0/res
+com.community.adlinc.app-jetified-fragment-ktx-1.5.3-35 /Users/samkelontobekozondi/.gradle/caches/transforms-3/6d0825d1e6a5d7eae2a61508734fe853/transformed/jetified-fragment-ktx-1.5.3/res
+com.community.adlinc.app-jetified-play-services-basement-18.1.0-36 /Users/samkelontobekozondi/.gradle/caches/transforms-3/6d6e81182928c4cfce719e8b8e2d95cd/transformed/jetified-play-services-basement-18.1.0/res
+com.community.adlinc.app-jetified-lifecycle-viewmodel-compose-2.5.1-37 /Users/samkelontobekozondi/.gradle/caches/transforms-3/6d8588b712b4ed39288c577ae8129881/transformed/jetified-lifecycle-viewmodel-compose-2.5.1/res
+com.community.adlinc.app-navigation-common-2.5.3-38 /Users/samkelontobekozondi/.gradle/caches/transforms-3/704e9db37ca8067b4881e4ec45ab7a66/transformed/navigation-common-2.5.3/res
+com.community.adlinc.app-jetified-ui-graphics-1.3.0-39 /Users/samkelontobekozondi/.gradle/caches/transforms-3/73d8637acc9c787747d1ebd26a30ab2a/transformed/jetified-ui-graphics-1.3.0/res
+com.community.adlinc.app-fragment-1.5.3-40 /Users/samkelontobekozondi/.gradle/caches/transforms-3/74157ad0c66ad053fb2ededea3bdc634/transformed/fragment-1.5.3/res
+com.community.adlinc.app-jetified-emoji2-views-helper-1.2.0-41 /Users/samkelontobekozondi/.gradle/caches/transforms-3/77324eb2cf54ed3173eb1d65dabe4771/transformed/jetified-emoji2-views-helper-1.2.0/res
+com.community.adlinc.app-jetified-navigation-compose-2.5.3-42 /Users/samkelontobekozondi/.gradle/caches/transforms-3/7860aefa4291e6bcbcdac4cbb171dcb9/transformed/jetified-navigation-compose-2.5.3/res
+com.community.adlinc.app-jetified-lifecycle-viewmodel-savedstate-2.5.1-43 /Users/samkelontobekozondi/.gradle/caches/transforms-3/7abf88be2507341702abab30ecec643a/transformed/jetified-lifecycle-viewmodel-savedstate-2.5.1/res
+com.community.adlinc.app-jetified-window-java-1.0.0-beta04-44 /Users/samkelontobekozondi/.gradle/caches/transforms-3/86b1c544979065211eeab369bc1bd1a3/transformed/jetified-window-java-1.0.0-beta04/res
+com.community.adlinc.app-jetified-lifecycle-livedata-ktx-2.5.1-45 /Users/samkelontobekozondi/.gradle/caches/transforms-3/978f6889ac0ff87fc4ca70b0a25ea642/transformed/jetified-lifecycle-livedata-ktx-2.5.1/res
+com.community.adlinc.app-jetified-customview-poolingcontainer-1.0.0-46 /Users/samkelontobekozondi/.gradle/caches/transforms-3/998fbc7bca3e6af6cce9c64daa7f4f41/transformed/jetified-customview-poolingcontainer-1.0.0/res
+com.community.adlinc.app-jetified-stripe-3ds2-android-6.1.5-47 /Users/samkelontobekozondi/.gradle/caches/transforms-3/9a34972674d1a9c1cb5f072675b4090e/transformed/jetified-stripe-3ds2-android-6.1.5/res
+com.community.adlinc.app-jetified-animation-1.3.0-48 /Users/samkelontobekozondi/.gradle/caches/transforms-3/9afdfb51fc176ce80e2253c239e88c3f/transformed/jetified-animation-1.3.0/res
+com.community.adlinc.app-jetified-play-services-maps-18.0.2-49 /Users/samkelontobekozondi/.gradle/caches/transforms-3/9d0bdf7fe479f14138bd4270adc076cc/transformed/jetified-play-services-maps-18.0.2/res
+com.community.adlinc.app-jetified-link-20.15.4-50 /Users/samkelontobekozondi/.gradle/caches/transforms-3/9da59938f5889de1d53541620cd50e82/transformed/jetified-link-20.15.4/res
+com.community.adlinc.app-media-1.0.0-51 /Users/samkelontobekozondi/.gradle/caches/transforms-3/a09075494cfbaa9a35bea2d585ec2205/transformed/media-1.0.0/res
+com.community.adlinc.app-appcompat-1.5.1-52 /Users/samkelontobekozondi/.gradle/caches/transforms-3/a0e701c98b91fed1797d5c527cdd571e/transformed/appcompat-1.5.1/res
+com.community.adlinc.app-jetified-ui-1.3.0-53 /Users/samkelontobekozondi/.gradle/caches/transforms-3/aa11cb5798a894b06dc2cc668eb5246d/transformed/jetified-ui-1.3.0/res
+com.community.adlinc.app-jetified-ui-geometry-1.3.0-54 /Users/samkelontobekozondi/.gradle/caches/transforms-3/ab6e2e7ea86a1a1c8cb57ea65274fa79/transformed/jetified-ui-geometry-1.3.0/res
+com.community.adlinc.app-jetified-glide-4.12.0-55 /Users/samkelontobekozondi/.gradle/caches/transforms-3/b5c8a1c1bdb4a489fc758ca4818a4179/transformed/jetified-glide-4.12.0/res
+com.community.adlinc.app-jetified-runtime-saveable-1.3.0-56 /Users/samkelontobekozondi/.gradle/caches/transforms-3/bb1ce4d7c60264fa84527fb2ac13bb87/transformed/jetified-runtime-saveable-1.3.0/res
+com.community.adlinc.app-jetified-paymentsheet-20.15.4-57 /Users/samkelontobekozondi/.gradle/caches/transforms-3/bd9fc76b0e1ba3d801cab2f71af1aaa9/transformed/jetified-paymentsheet-20.15.4/res
+com.community.adlinc.app-constraintlayout-2.1.4-58 /Users/samkelontobekozondi/.gradle/caches/transforms-3/bea741d033131381dab280f1d702abe7/transformed/constraintlayout-2.1.4/res
+com.community.adlinc.app-jetified-activity-compose-1.6.1-59 /Users/samkelontobekozondi/.gradle/caches/transforms-3/c69d84f287ffff00d2eb725df4216596/transformed/jetified-activity-compose-1.6.1/res
+com.community.adlinc.app-jetified-ui-tooling-preview-1.3.0-60 /Users/samkelontobekozondi/.gradle/caches/transforms-3/c7bee73810072081f391056b856eb6ec/transformed/jetified-ui-tooling-preview-1.3.0/res
+com.community.adlinc.app-jetified-ui-unit-1.3.0-61 /Users/samkelontobekozondi/.gradle/caches/transforms-3/c7e1cb737f4080058fae6535a77010e7/transformed/jetified-ui-unit-1.3.0/res
+com.community.adlinc.app-jetified-foundation-layout-1.3.0-62 /Users/samkelontobekozondi/.gradle/caches/transforms-3/ca05ea72361a86430577f122682ccf3d/transformed/jetified-foundation-layout-1.3.0/res
+com.community.adlinc.app-jetified-runtime-livedata-1.3.0-63 /Users/samkelontobekozondi/.gradle/caches/transforms-3/cdd1f292bfe2615e9cb5c3b1a9e4558b/transformed/jetified-runtime-livedata-1.3.0/res
+com.community.adlinc.app-jetified-material-icons-core-1.3.0-64 /Users/samkelontobekozondi/.gradle/caches/transforms-3/d73b4b1c888e04942b7aa5d6b6bf5f7e/transformed/jetified-material-icons-core-1.3.0/res
+com.community.adlinc.app-jetified-profileinstaller-1.2.0-65 /Users/samkelontobekozondi/.gradle/caches/transforms-3/d7729e87a2f68c7ea9c2e6733d6a1658/transformed/jetified-profileinstaller-1.2.0/res
+com.community.adlinc.app-jetified-play-services-base-18.0.1-66 /Users/samkelontobekozondi/.gradle/caches/transforms-3/d8bdd03b3b2a3d795621731fd01c86d5/transformed/jetified-play-services-base-18.0.1/res
+com.community.adlinc.app-jetified-core-ktx-1.9.0-67 /Users/samkelontobekozondi/.gradle/caches/transforms-3/d945ee6388eb8c6781c329c934cf82bd/transformed/jetified-core-ktx-1.9.0/res
+com.community.adlinc.app-coordinatorlayout-1.1.0-68 /Users/samkelontobekozondi/.gradle/caches/transforms-3/dbdd528b6cfa71c40789b8415a28d548/transformed/coordinatorlayout-1.1.0/res
+com.community.adlinc.app-jetified-runtime-1.3.0-69 /Users/samkelontobekozondi/.gradle/caches/transforms-3/df24911c0f16fc9228591f665a4d57c1/transformed/jetified-runtime-1.3.0/res
+com.community.adlinc.app-jetified-payments-ui-core-20.15.4-70 /Users/samkelontobekozondi/.gradle/caches/transforms-3/dfa5534beaed035d8843470ae8acb50b/transformed/jetified-payments-ui-core-20.15.4/res
+com.community.adlinc.app-recyclerview-1.2.1-71 /Users/samkelontobekozondi/.gradle/caches/transforms-3/e11fefee62d18d1f32c172139147a7fb/transformed/recyclerview-1.2.1/res
+com.community.adlinc.app-jetified-startup-runtime-1.1.1-72 /Users/samkelontobekozondi/.gradle/caches/transforms-3/e166b41bbc5ec1af5e8d6328a50053d7/transformed/jetified-startup-runtime-1.1.1/res
+com.community.adlinc.app-lifecycle-livedata-core-2.5.1-73 /Users/samkelontobekozondi/.gradle/caches/transforms-3/e5b5949c8cb982c01b108236024399fa/transformed/lifecycle-livedata-core-2.5.1/res
+com.community.adlinc.app-jetified-stripe-core-20.15.4-74 /Users/samkelontobekozondi/.gradle/caches/transforms-3/e76402926d76d4727f495333d74e438c/transformed/jetified-stripe-core-20.15.4/res
+com.community.adlinc.app-jetified-payments-core-20.15.4-75 /Users/samkelontobekozondi/.gradle/caches/transforms-3/ea02ae69db56e5730774dc520b163e48/transformed/jetified-payments-core-20.15.4/res
+com.community.adlinc.app-jetified-material-1.3.0-76 /Users/samkelontobekozondi/.gradle/caches/transforms-3/eba4c2516dccdb5be093cd42c4fd2af0/transformed/jetified-material-1.3.0/res
+com.community.adlinc.app-lifecycle-livedata-2.5.1-77 /Users/samkelontobekozondi/.gradle/caches/transforms-3/f4564f8015e47b55317ca42735b07f1b/transformed/lifecycle-livedata-2.5.1/res
+com.community.adlinc.app-jetified-emoji2-1.2.0-78 /Users/samkelontobekozondi/.gradle/caches/transforms-3/fad933c3d440b0ace4ea9548a271eb0e/transformed/jetified-emoji2-1.2.0/res
+com.community.adlinc.app-jetified-activity-1.6.1-79 /Users/samkelontobekozondi/.gradle/caches/transforms-3/fef1587d2a1e757c5b378cb342e33d75/transformed/jetified-activity-1.6.1/res
+com.community.adlinc.app-debug-80 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/android/app/src/debug/res
+com.community.adlinc.app-main-81 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/android/app/src/main/res
+com.community.adlinc.app-google-services-82 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/generated/res/google-services/debug
+com.community.adlinc.app-pngs-83 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/generated/res/pngs/debug
+com.community.adlinc.app-resValues-84 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/generated/res/resValues/debug
+com.community.adlinc.app-rs-85 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/generated/res/rs/debug
+com.community.adlinc.app-mergeDebugResources-86 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/intermediates/incremental/debug/mergeDebugResources/merged.dir
+com.community.adlinc.app-mergeDebugResources-87 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+com.community.adlinc.app-merged_res-88 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/app/intermediates/merged_res/debug
+com.community.adlinc.app-packaged_res-89 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/cloud_firestore/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-90 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/file_picker/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-91 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/firebase_auth/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-92 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/firebase_core/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-93 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/firebase_dynamic_links/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-94 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/firebase_storage/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-95 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/flutter_js/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-96 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/flutter_plugin_android_lifecycle/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-97 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/fluttertoast/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-98 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/google_sign_in/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-99 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/path_provider_android/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-100 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/shared_preferences_android/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-101 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/sqflite/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-102 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/stripe_android/intermediates/packaged_res/debug
+com.community.adlinc.app-packaged_res-103 /Users/samkelontobekozondi/Library/Mobile Documents/com~apple~CloudDocs/Apps/Adlinc/build/webview_flutter_android/intermediates/packaged_res/debug

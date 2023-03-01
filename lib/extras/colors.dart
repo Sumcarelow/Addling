@@ -52,7 +52,7 @@ List<color> colors = [
 
 ///Get Color Function
 Color getColor(String name, double opacity){
-  Color finalColor = Color.fromRGBO(0, 0, 0, 1.0);
+  Color finalColor = const Color.fromRGBO(0, 0, 0, 1.0);
   colors.forEach((colorElem) {
     if (colorElem.name == name){
       finalColor = Color.fromRGBO(colorElem.code[0], colorElem.code[1], colorElem.code[2], opacity);

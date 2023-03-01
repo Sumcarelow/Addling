@@ -64,7 +64,7 @@ class _AddListingState extends State<AddListing> {
     ///Set OnLoading Screen
     setState(() {
       isLoading = true;
-      loadigScreenMsg = "Uploading profile picture...";
+      loadingScreenMsg = "Uploading profile picture...";
     });
 
     ///Shared Preferences Instance
@@ -123,10 +123,11 @@ class _AddListingState extends State<AddListing> {
       Fluttertoast.showToast(msg: "Listing created Successfully");
 
       ///Navigate to Home Page
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
 
     });
   }
+
   ///Get amenities list from Firebase
   void getAmenities() async{
     final QuerySnapshot result =
@@ -159,7 +160,7 @@ class _AddListingState extends State<AddListing> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Listing"),
+        title: const Text("Add Listing"),
       ),
 
       body: Column(
@@ -168,15 +169,16 @@ class _AddListingState extends State<AddListing> {
         children: [
           ///Product Name
           Container(
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0),
             child: Theme(
               data: Theme.of(context).copyWith(primaryColor: Colors.grey),
               child: TextFormField(
                 autocorrect: false,
                 cursorColor: Colors.grey,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.grey
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
 
                   disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(5))
@@ -202,20 +204,20 @@ class _AddListingState extends State<AddListing> {
                 focusNode: focusNodeUserName,
               ),
             ),
-            margin: EdgeInsets.only(left: 30.0, right: 30.0),
           ),
 
           ///Product Description
           Container(
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0),
             child: Theme(
               data: Theme.of(context).copyWith(primaryColor: Colors.grey),
               child: TextFormField(
                 autocorrect: false,
                 cursorColor: Colors.grey,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.grey
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
 
                   disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(5))
@@ -241,21 +243,20 @@ class _AddListingState extends State<AddListing> {
                 focusNode: focusNodeUserDescr,
               ),
             ),
-            margin: EdgeInsets.only(left: 30.0, right: 30.0),
           ),
 
           ///product price
           Container(
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0),
             child: Theme(
               data: Theme.of(context).copyWith(primaryColor: Colors.grey),
               child: TextFormField(
                 autocorrect: false,
                 cursorColor: Colors.grey,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.grey
                 ),
-                decoration: InputDecoration(
-
+                decoration: const InputDecoration(
                   disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(5))
                   ),
@@ -280,7 +281,6 @@ class _AddListingState extends State<AddListing> {
                 focusNode: focusNodeUserPrice,
               ),
             ),
-            margin: EdgeInsets.only(left: 30.0, right: 30.0),
           ),
 
           ///Upload Pic Section
@@ -290,6 +290,8 @@ class _AddListingState extends State<AddListing> {
               ///Company Logo Section
               Expanded(
                 child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(20.0),
                   child: Center(
                     child: Column(
                       children: <Widget>[
@@ -298,22 +300,22 @@ class _AddListingState extends State<AddListing> {
                             ? Material(
                           child: CachedNetworkImage(
                             placeholder: (context, url) => Container(
-                              child: CircularProgressIndicator(
+                              child: const CircularProgressIndicator(
                                 strokeWidth: 2.0,
                               ),
                               width: 120.0,
                               height: 120.0,
-                              padding: EdgeInsets.all(20.0),
+                              padding: const EdgeInsets.all(20.0),
                             ),
                             imageUrl: productPic,
                             width: 120.0,
                             height: 120.0,
                             fit: BoxFit.cover,
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(45.0)),
+                          borderRadius: const BorderRadius.all(Radius.circular(45.0)),
                           clipBehavior: Clip.hardEdge,
                         )
-                            : Icon(
+                            : const Icon(
                           Icons.account_circle,
                           size: 120.0,
                         ))
@@ -324,7 +326,7 @@ class _AddListingState extends State<AddListing> {
                             height: 120.0,
                             fit: BoxFit.cover,
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(45.0)),
+                          borderRadius: const BorderRadius.all(Radius.circular(45.0)),
                           clipBehavior: Clip.hardEdge,
                         ),
                         Padding(
@@ -333,7 +335,7 @@ class _AddListingState extends State<AddListing> {
                             onTap: getImage,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
+                              children: const [
                                 Icon(
                                   Icons.camera_alt,
                                 ),
@@ -345,8 +347,6 @@ class _AddListingState extends State<AddListing> {
                       ],
                     ),
                   ),
-                  width: double.infinity,
-                  margin: EdgeInsets.all(20.0),
                 ),
               ),
             ],
@@ -368,7 +368,6 @@ class _AddListingState extends State<AddListing> {
                       if(myAmenities.contains(amenities[index])){
                         myAmenities.remove(index);
                       } else {
-
                         myAmenities.add(amenities[index]);
                       }
                     },
@@ -381,7 +380,7 @@ class _AddListingState extends State<AddListing> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(amenities[index]["name"],
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 1.0), fontSize: 10,))
+                            style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(255, 255, 255, 1.0), fontSize: 10,))
                         ),
                       ),
                     ),

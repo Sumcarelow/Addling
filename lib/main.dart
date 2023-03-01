@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Home(),
     );
@@ -25,8 +25,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -47,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: MediaQuery.of(context).size.height * 0.2,
               width: MediaQuery.of(context).size.width * 0.6,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/images/logo.png'),
                   fit: BoxFit.cover
@@ -58,31 +56,31 @@ class _MyHomePageState extends State<MyHomePage> {
             ///Welcome Message
             Text(
               'Hello and welcome to \n ADLINC Community.',
-                style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold))
+                style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold))
             ),
 
             ///Create Account Button
             ElevatedButton(
-                style: ButtonStyle(
+                style: const ButtonStyle(
                   backgroundColor:  MaterialStatePropertyAll<Color>(Color.fromRGBO(17, 106, 57, 1.0)),
                 ),
                 onPressed: (){
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Register()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Register()));
                 },
                 child: Text("CREATE ACCOUNT",
-                    style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))
+                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))
                 )
             ),
 
             ///Login Button
             OutlinedButton(
-                style: ButtonStyle(
+                style: const ButtonStyle(
                   foregroundColor:  MaterialStatePropertyAll<Color>(Color.fromRGBO(12, 106, 187, 1.0)),
                 ),
                 onPressed: (){
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
                 },
                 child: Padding(
                   padding: EdgeInsets
@@ -92,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                     child:Text(
                   "LOGIN",
-                    style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Color.fromRGBO(12, 106, 187, 1.0), fontSize: 13, fontWeight: FontWeight.bold))
+                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(12, 106, 187, 1.0), fontSize: 13, fontWeight: FontWeight.bold))
                 ))
 
             ),
