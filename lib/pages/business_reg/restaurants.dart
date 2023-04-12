@@ -1,5 +1,6 @@
 ///Page to add restaurant listing
 
+import 'package:adlinc/pages/business_reg/rest_menu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,6 +13,9 @@ import 'dart:io';
 import '../../extras/colors.dart';
 import '../../extras/data.dart';
 import '../../extras/variables.dart';
+import '../home.dart';
+
+
 class Restaurant extends StatefulWidget {
   final String group, bizID;
   const Restaurant({Key? key, required this.bizID, required this.group}) : super(key: key);
@@ -26,6 +30,7 @@ class _RestaurantState extends State<Restaurant> {
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
 
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController descrController = TextEditingController();
 
   final FocusNode focusNodeUserDescr = FocusNode();
@@ -81,7 +86,7 @@ class _RestaurantState extends State<Restaurant> {
     prefs = await SharedPreferences.getInstance();
 
     ///File Name on Firebase storage
-    String fileName = name + 'pr-accom' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
+    String fileName = name + 'pr-rest' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
 
     ///Create storage reference and upload image
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
@@ -121,8 +126,6 @@ class _RestaurantState extends State<Restaurant> {
     });
   }
 
-
-
   ///Drop down Button for BedSizes
   Widget restTypesDropDown(){
     return DropdownButton(
@@ -149,6 +152,37 @@ class _RestaurantState extends State<Restaurant> {
       },
     );
   }
+
+  ///Post data to Firebase
+  void postData() async{
+
+    ///Add new user to Firebase
+    DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc();
+
+    docRef.set({
+      'id': docRef.id,
+      'description': description,
+      'businessID': widget.bizID,
+      'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
+    }).then((value) async {
+
+      ///Upload Product Pictures
+      productPictures.forEach((element) {
+        uploadProfilePicture(File(element.path), docRef.id, name);
+      });
+
+
+      ///Upload Amenities List
+     // uploadAmenities(docRef.id);
+
+      Fluttertoast.showToast(msg: "Listing created Successfully");
+
+      ///Navigate to Home Page
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MenuAdd(bizID: widget.bizID,)));
+
+    });
+  }
+
 
 
   ///Initial state
@@ -306,6 +340,21 @@ class _RestaurantState extends State<Restaurant> {
                             );
                           }),
                     ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: ElevatedButton(
+                        onPressed: (){
+                          formKey.currentState!.validate() && productPictures.isNotEmpty
+                              ? postData()
+                              : null;
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
+                        ),
+                        child: const Text("Add Listing"),
+                      ),
+                    )
 
                   ],
 

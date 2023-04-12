@@ -59,7 +59,7 @@ class _LoginState extends State<Login> {
       await prefs.setString('email', documents[0]['email']);
 
       Fluttertoast.showToast(msg: "Login successful");
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => SimpleAppBarPopupMenuButton()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
     } else {
       Fluttertoast.showToast(msg: "Login unsuccessful");
     }

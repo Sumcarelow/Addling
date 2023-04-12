@@ -1,3 +1,4 @@
+import 'package:adlinc/extras/data.dart';
 import 'package:adlinc/pages/business_reg/bicycle.dart';
 import 'package:adlinc/pages/business_reg/car_rental.dart';
 import 'package:adlinc/pages/business_reg/fun_and_games.dart';
@@ -23,6 +24,7 @@ import '../extras/variables.dart';
 import 'dart:io';
 import '../extras/colors.dart';
 import 'business_reg/accomodation.dart';
+import 'home.dart';
 
 class AddBusiness extends StatefulWidget {
   const AddBusiness({Key? key}) : super(key: key);
@@ -33,8 +35,12 @@ class AddBusiness extends StatefulWidget {
 
 class _AddBusinessState extends State<AddBusiness> {
   ///Form Variables
-  late String id, docID, name, businessEmail, phone, logo = logoURL, address, group = '', category = 'Please select your business Type', subCategory = 'Please select your business sub-category';
-  List<String> categoriesList = ['Please select your business Type'];
+  late String id, docID = '', name, businessEmail, phone, policy, policyType = policyTypes[0],
+      logo = logoURL, address, group = '',
+      category = 'Please select your business Type for Bookings',
+      subCategory = 'Please select your business sub-category';
+  List<String> categoriesList = ['Please select your business Type for Bookings'];
+  List<Category> mainCategoryList = [];
   List<String> subCategoriesList = [];
   List<DocumentSnapshot> categories = [];
   List<DocumentSnapshot> subCategories = [];
@@ -44,14 +50,36 @@ class _AddBusinessState extends State<AddBusiness> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController policyController = TextEditingController();
   final FocusNode focusNodeUserEmail = FocusNode();
   final FocusNode focusNodeUserName = FocusNode();
   final FocusNode focusNodeUserLastName = FocusNode();
   final FocusNode focusNodePhone= FocusNode();
   final FocusNode focusNodeAddress = FocusNode();
+  final FocusNode focusNodeDropDown = FocusNode();
+  final FocusNode focusNodePolicy = FocusNode();
 
-  late Widget nextPage;
+  late GlobalKey dropdownKey;
+  late Widget nextPage = Home();
+  var policyDoc;
 
+
+  ///Select PDF Policy doc from device
+  Future getDoc() async {
+    var images = (
+        await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['pdf', 'doc'],
+            dialogTitle: "Please select a valid document."
+        ))?.files;
+
+    if(images != null && images.length != 0){
+      setState(() {
+        policyDoc = File((images.first.path).toString());
+      });
+      uploadProfilePicture();
+    }
+  }
 
   ///load Local Storage Info
   void loadData() async{
@@ -69,6 +97,26 @@ class _AddBusinessState extends State<AddBusiness> {
   bool showAcceptTC = false;
   var profileImage;
 
+  ///Select Category Icon
+  IconData getIcon(String cat) {
+    IconData icon = Icons.add;
+    switch (cat){
+      case 'HOME CARE' :
+        icon = Icons.home_outlined;
+            break;
+       case 'HEALTHCARE':
+         icon = Icons.health_and_safety_outlined;
+         break;
+      case 'SELF LOVE':
+        icon = Icons.handshake_outlined;
+        break;
+      case 'HOSPITALITY & TOURISM':
+        icon = Icons.travel_explore_outlined;
+        break;
+    }
+    return icon;
+  }
+
   ///Fetch Categories from Firebase using level as key
   void getCategories(String level) async{
     ///Get Firebase Docs
@@ -82,6 +130,13 @@ class _AddBusinessState extends State<AddBusiness> {
       if(level == 'main'){
         //Load to main categories list
         documents.forEach((categ) {
+
+          ///Add main categories with icons add
+          this.setState(() {
+            this.setState(() {
+              mainCategoryList.add(Category(name: categ['name'], iconData: getIcon(categ['name'])));
+            });
+          });
 
           this.setState(() {
             categoriesList.add(categ['name']);
@@ -128,7 +183,7 @@ class _AddBusinessState extends State<AddBusiness> {
       Fluttertoast.showToast(msg: "Business already exists, please use login or forgot password.");
     } else {
       ///Check if T&C's are Accepted
-      if(showAcceptTC && category != 'Please select your business Type' && subCategory != 'Please select your business sub-category'){
+      if(showAcceptTC && category != 'Please select your business Type for Bookings' && subCategory != 'Please select your business sub-category'){
         postData();
       } else {
         Fluttertoast.showToast(msg: "Please accept the terms and conditions to proceed and select categories for your business.");
@@ -155,22 +210,18 @@ class _AddBusinessState extends State<AddBusiness> {
 
       Fluttertoast.showToast(msg: "Business Registration Successful");
 
-      ///Save Store Firebase Document ID
+      ///Save Business Firebase Data to local Storage
       setState(() {
         docID = docRef.id;
+        prefs.setString('bizID', docRef.id);
+        prefs.setString('bizName', name);
+        prefs.setString('bizSubCategory', subCategory);
       });
 
       ///Set Nav
       setGroupNav(subCategory);
       Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
 
-     //  ///Navigate to Relevant Listing Page
-     //  if(nextPage != Home()){
-     //  }
-     // // Navigator.push(context, MaterialPageRoute(builder: (context) => AddListing(bizID: docRef.id, group: group,)));
-     //  else {
-     //    Fluttertoast.showToast(msg: "There was an error loading the information, please try again later.");
-     //  }
     });
   }
 
@@ -178,7 +229,7 @@ class _AddBusinessState extends State<AddBusiness> {
 ///Set Group variable according to the subCategory
   void setGroup(String category){
     switch (category){
-      case 'B&B' 'HOTEL' 'PRIVATE HOUSE' 'PRIVATE ROOM' :
+      case 'B&B' 'HOTEL' 'VACATION DESTINATION' :
         {
           setState(() {
             group = 'ACCOMMODATION';
@@ -206,7 +257,7 @@ class _AddBusinessState extends State<AddBusiness> {
           });
         }
         break;
-      case 'BICYCLE':
+      case 'BICYCLE RENTAL':
         {
           setState(() {
             group = 'bicycle';
@@ -252,65 +303,97 @@ class _AddBusinessState extends State<AddBusiness> {
 ///Set Next Reg Page variable according to the subCategory
   void setGroupNav(String category){
     switch (category){
-      case 'B&B' 'HOTEL' 'PRIVATE HOUSE' 'PRIVATE ROOM' :
-        {
-          setState(() {
+      case 'B&B':
+      case'HOTEL':
+      case 'VACATION DESTINATION':
+        return
+          this.setState(() {
             nextPage = Accommodation(group: 'ACCOMMODATION', bizID: docID);
           });
-        }
+
         break;
       case 'RESTAURANT':
         {
-          setState(() {
+          this.setState(() {
             nextPage = Restaurant(group: 'RESTAURANT', bizID: docID);
           });
         }
         break;
       case 'FUN & GAMES':
         {
-          setState(() {
+          this.setState(() {
             nextPage = FunAndGames(group: 'games', bizID: docID);
           });
         }
         break;
-      case 'SELF LOVE' 'MAKE-UP ARTIST' 'HAIRDRESSING' 'MANI AND PEDI' 'TATTOO PARLOUR' 'BODY PIERCING' 'NAIL TECHNICIAN' 'MASSAGE SALON/THERAPIST' 'FACIAL SPA' 'FOOT MASSAGE' 'SKIN CARE CONSULTING':
+      case 'SELF LOVE':
+      case'MAKE-UP ARTIST':
+      case 'HAIRDRESSING':
+      case 'MANI AND PEDI':
+      case 'TATTOO PARLOUR':
+      case 'BODY PIERCING':
+      case 'NAIL TECHNICIAN':
+      case 'MASSAGE SALON/THERAPIST':
+      case 'FACIAL SPA':
+      case 'FOOT MASSAGE':
+      case 'SKIN CARE CONSULTING':
+
         {
-          setState(() {
+          this.setState(() {
             nextPage = SelfLove(group: 'self', bizID: docID);
           });
         }
         break;
-      case 'BICYCLE':
+      case 'BICYCLE RENTAL':
         {
-          setState(() {
+          this.setState(() {
             nextPage = Bicycle(group: 'bicycle', bizID: docID);
           });
         }
         break;
       case 'CAR RENTAL':
         {
-          setState(() {
+          this.setState(() {
             nextPage = CarRental(group: 'carRental', bizID: docID);
           });
         }
         break;
-      case 'HEALTHCARE' 'DENTIST' 'PHYSICIAN' 'GENERAL PRACTISIONER' 'THERAPIST' 'DERMATOLOGIST' 'COUNSELLOR':
+      case 'HEALTHCARE':
+      case 'DENTIST':
+      case 'PHYSICIAN':
+      case 'GENERAL PRACTISIONER':
+      case 'THERAPIST':
+      case 'DERMATOLOGIST':
+      case 'COUNSELLOR':
         {
-          setState(() {
+          this.setState(() {
             nextPage = Healthcare(group: 'healthcare', bizID: docID);
           });
         }
         break;
-      case 'HOME CARE' 'LAWN-MOWER' 'CLEANING' 'PLUMBING' 'CARPET CLEANING' 'MOVERS' 'ELECTRICIAN' 'MECHANIC' 'ROOF REPAIR' 'FLOORING' 'GUTTER CLEAN' 'HANDYMAN' 'PAINTER' 'LANDSCAPER':
+      case 'HOME CARE':
+      case 'LAWN-MOWER':
+      case 'CLEANING':
+      case 'PLUMBING':
+      case 'CARPET CLEANING':
+      case 'MOVERS':
+      case 'ELECTRICIAN':
+      case 'MECHANIC':
+      case 'ROOF REPAIR':
+      case 'FLOORING':
+      case 'GUTTER CLEAN':
+      case 'HANDYMAN':
+      case 'PAINTER':
+      case 'LANDSCAPER':
         {
-          setState(() {
+          this.setState(() {
             nextPage = HomeCare(group: 'homeCare', bizID: docID);
           });
         }
         break;
       case 'MOTORCYCLE':
         {
-          setState(() {
+          this.setState(() {
             nextPage = Motorcycle(group: 'motorcycle', bizID: docID);
           });
         }
@@ -376,6 +459,55 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
+  ///Upload PDF Document
+  Future uploadPolicyDoc() async {
+
+    ///Set OnLoading Screen
+    setState(() {
+      isLoading = true;
+      loadingScreenMsg = "Uploading policy document...";
+    });
+
+    ///Shared Preferences Instance
+    prefs = await SharedPreferences.getInstance();
+
+    ///File Name on Firebase storage
+    String fileName = id + 'Business-Policy' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
+
+    ///Create storage reference and upload image
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    UploadTask uploadTask = reference.putFile(policyDoc);
+    TaskSnapshot storageTaskSnapshot;
+    uploadTask.then((value){
+
+      ///If Upload was successful
+      storageTaskSnapshot = value;
+
+      ///Get Url
+      storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl)async{
+        setState(() {
+          policy = downloadUrl;
+          isLoading = false;
+        });
+
+        //await prefs.setString('profilePic', profilePic);
+        Fluttertoast.showToast(msg: "Business Policy Uploaded Successfully.");
+      }, onError: (err){
+        ///Set Off Loading Screen
+        setState(() {
+          isLoading = false;
+        });
+        Fluttertoast.showToast(msg: err.toString());
+      });
+    }, onError: (err){
+      ///Set Off Loading Screen
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: err.toString());
+    });
+  }
+
   ///Load image from phone storage
   Future getImage() async {
     var images = (
@@ -398,7 +530,7 @@ class _AddBusinessState extends State<AddBusiness> {
       //subCategory = 'Please select your business sub-category';
       subCategoriesList = [];
     });
-    if(value == 'Please select your business Type'){
+    if(value == 'Please select your business Type for Bookings'){
       setState(() {
         subCategoriesList = [];
       });
@@ -432,25 +564,33 @@ class _AddBusinessState extends State<AddBusiness> {
   ///Dropdown Widgets
   Widget categoryDropDown(){
     return DropdownButton<String>(
+        focusNode: focusNodeDropDown,
+        key: dropdownKey,
         value: category,
         items: categoriesList.map<DropdownMenuItem<String>>((String element) {
           String sub = '';
+          bool showSubDropDownButton = false;
           if(subCategory == 'Please select your business sub-category'){
+            showSubDropDownButton = true;
             sub = '';
           }
           else {
             //print("Here I am: $subCategory");
+            showSubDropDownButton = false;
             sub = subCategory;
           }
       return DropdownMenuItem<String>(
       value: element,
         child:
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text('$element >> $sub'),
-            element == 'Please select your business Type'
+            element == 'Please select your business Type for Bookings'
+            ? Container()
+            : Icon(getIcon(element)),
+            Text('$element \n$sub'),
+            element == 'Please select your business Type for Bookings' || !showSubDropDownButton
                 ? Container()
                 :
             subMenuCategoryDropDown(element),
@@ -471,11 +611,16 @@ class _AddBusinessState extends State<AddBusiness> {
           PopupMenuItem(
               child: Text(element),
           onTap: (){
+            mainCategorySelect(cate);
           setState(() {
               subCategory = element;
             });
 
           setGroup(element);
+            Navigator.pop(dropdownKey.currentContext!);
+            setState(() {
+              focusNodeDropDown.unfocus();
+            });
           //print("I do get here with $nextPage");
           },
           )
@@ -483,11 +628,81 @@ class _AddBusinessState extends State<AddBusiness> {
     });
 
     return PopupMenuButton<dynamic>(
+      icon: Icon(Icons.arrow_drop_down, color: getColor("black", 1.0),),
         itemBuilder: (context) =>
         myList,
       onSelected: (value){
           setGroup(value!);
+
       },
+    );
+  }
+
+  ///Policy document section
+  Widget textInput(){
+    return Container(
+      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+      child: Theme(
+        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+        child: TextFormField(
+          autocorrect: false,
+          cursorColor: Colors.grey,
+          style: const TextStyle(
+              color: Colors.grey
+          ),
+          decoration: const InputDecoration(
+
+            disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5))
+            ),
+            focusColor: Colors.grey,
+            fillColor: Colors.grey,
+            labelStyle: TextStyle(color: Colors.grey),
+            hintText: 'Policy link/text',
+            contentPadding: EdgeInsets.all(5.0),
+            hintStyle: TextStyle(color: Colors.grey),
+
+          ),
+          controller: policyController,
+          validator: (value) {
+            if (value == null) {
+              return 'Please enter your Product Name';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            policy = value;
+          },
+          focusNode: focusNodePolicy,
+        ),
+      ),
+    );
+  }
+
+
+  ///Dropdown for Policy type
+  Widget policyTypeDropDown() {
+    return DropdownButton<String>(
+      value: policyType,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          policyType = value!;
+        });
+      },
+      items: policyTypes.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 
@@ -496,6 +711,7 @@ class _AddBusinessState extends State<AddBusiness> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    dropdownKey = GlobalKey();
     getCategories('main');
     getCategories('sub');
     loadData();
@@ -599,7 +815,6 @@ class _AddBusinessState extends State<AddBusiness> {
                 ),
               ],
             ),
-
 
             ///Registration Form
             Form(
@@ -719,6 +934,7 @@ class _AddBusinessState extends State<AddBusiness> {
                       ),
                     ),
 
+
                     ///Address
                     Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -753,6 +969,7 @@ class _AddBusinessState extends State<AddBusiness> {
                     Flexible(
                         child: categoryDropDown()),
 
+
                     ///Business hours selection
                     ///Section Header
                     Text(
@@ -783,7 +1000,7 @@ class _AddBusinessState extends State<AddBusiness> {
                                   style: const TextStyle(fontSize: 15),
                                   textAlign: TextAlign.center,
                                   onChanged: (val) {
-                                    print("this is where it is at $val");
+                                    //print("this is where it is at $val");
                                     setState((){
                                       mondayOpen = val;
                                     });
@@ -975,7 +1192,6 @@ class _AddBusinessState extends State<AddBusiness> {
                       ),
                     ),
 
-
                     ///Thursday
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1047,7 +1263,6 @@ class _AddBusinessState extends State<AddBusiness> {
                       ),
                     ),
 
-
                     ///Friday
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1118,7 +1333,6 @@ class _AddBusinessState extends State<AddBusiness> {
                         ],
                       ),
                     ),
-
 
                     ///Saturday
                     Padding(
@@ -1192,7 +1406,6 @@ class _AddBusinessState extends State<AddBusiness> {
                     ),
 
 
-
                     ///Sunday
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1264,6 +1477,59 @@ class _AddBusinessState extends State<AddBusiness> {
                       ),
                     ),
 
+                    ///Business Policy Section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Business Policy: "),
+                        policyTypeDropDown(),
+                      ],
+                    ),
+
+                    policyType == 'Url Link'
+                    ? textInput()
+                        : policyType == 'PDF Doc'
+                    ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ///Company Policy Section
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GestureDetector(
+                                      onTap: getDoc,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.picture_as_pdf,
+                                            size: 24,
+                                            color: getColor('black', 0.5),
+                                          ),
+                                          Text('Upload Doc',
+                                            style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 0.5), fontSize: 22, fontWeight: FontWeight.bold)),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                        : policyType == 'Text'
+                    ? textInput()
+                        : Container(),
+
                     ///Accept terms and conditions
                     Row(
                       children: [
@@ -1287,7 +1553,9 @@ class _AddBusinessState extends State<AddBusiness> {
                         ),
                         //color: colors[2],
                         onPressed: (){
-
+                          // ///Set Nav
+                          // setGroupNav(subCategory);
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
                           registerFormKey.currentState!.validate()
                               ? onRegisterBusinessPress()
                               : Fluttertoast.showToast(msg: "Please fill in the missing or incorrect information.");

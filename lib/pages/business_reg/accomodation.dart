@@ -30,7 +30,9 @@ class _AccommodationState extends State<Accommodation> {
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
   List<Bed> roomBeds = [];
-  late String name, description, price, productPic = logoURL, beds, sizes, bedSize = "Single", bedQuantity;
+  List<Price> roomPrices = [];
+  late String id, name, description, price, productPic = logoURL, beds, sizes, bedSize = "Single",
+      priceFrequency, bedQuantity, category;
   var profileImage;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descrController = TextEditingController();
@@ -144,20 +146,112 @@ class _AccommodationState extends State<Accommodation> {
     );
   }
 
+  ///Drop down Button for priceFreqs
+  Widget priceFreqDropDown(){
+    return DropdownButton(
 
+      /// Initial Value
+      value: priceFreqs[0],
+
+      /// Down Arrow Icon
+      icon: const Icon(Icons.keyboard_arrow_down),
+
+      /// Array list of items
+      items: priceFreqs.map((String items) {
+        return DropdownMenuItem(
+          value: items,
+          child: Text(items),
+        );
+      }).toList(),
+      // After selecting the desired option,it will
+      // change button value to selected value
+      onChanged: (String? newValue) {
+        setState(() {
+          priceFrequency = newValue!;
+        });
+      },
+    );
+  }
+
+  ///Upload Beds Information
+  void uploadBedsInformation(String roomID) async{
+    ///Go through Beds List and add each bed to room
+
+    roomBeds.forEach((bed) {
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('beds').doc();
+      docRef.set({
+        'id': docRef.id,
+        'size': bed.size,
+        'quantity': bed.quantity
+      });
+    });
+  }
+
+  ///Upload Prices Information
+  void uploadPricesInformation(String roomID) async{
+    ///Go through Beds List and add each bed to room
+
+    roomPrices.forEach((price) {
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('beds').doc();
+      docRef.set({
+        'id': docRef.id,
+        'amount': price.amount,
+        'frequency': price.frequency
+      });
+    });
+  }
+
+
+  ///Upload Beds Information
+  void uploadAmenities(String roomID) async{
+    ///Go through Beds List and add each bed to room
+    myAmenities.forEach((amenity) {
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('amenities').doc();
+      docRef.set({
+        'id': docRef.id,
+        'name': amenity['name'],
+      });
+    });
+  }
+  ///Dropdown for prices
+  Widget priceTypeDropDown() {
+    return DropdownButton<String>(
+      value: price,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          price = value!;
+        });
+      },
+      items: prices.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text('R$value'),
+        );
+      }).toList(),
+    );
+  }
 
   ///Post data to Firebase
   void postData() async{
+
     ///Add new user to Firebase
     DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc();
+
     docRef.set({
       'id': docRef.id,
       'name': name,
       'description': description,
       'price': price,
       'businessID': widget.bizID,
-      'pic': productPic,
-      'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
     }).then((value) async {
 
       ///Upload Product Pictures
@@ -165,9 +259,17 @@ class _AccommodationState extends State<Accommodation> {
         uploadProfilePicture(File(element.path), docRef.id, name);
       });
 
+      ///Upload Beds List or Price List
+      if(widget.bizID == 'PFU0is7zxXfX8kMAzZFa' ){
+        uploadPricesInformation(docRef.id);
+      } else {
+        uploadBedsInformation(docRef.id);
+      }
+
+      ///Upload Amenities List
+      uploadAmenities(docRef.id);
+
       Fluttertoast.showToast(msg: "Listing created Successfully");
-
-
 
       ///Navigate to Home Page
       Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
@@ -186,11 +288,23 @@ class _AccommodationState extends State<Accommodation> {
         amenities = [];
       });
     } else{
-
       this.setState(() {
         amenities = documents;
       });
     }
+  }
+
+  ///Load Local Saved Data to page
+  void readLocal() async{
+    setState((){
+      isLoading = false;
+    });
+    prefs = await SharedPreferences.getInstance();
+    id = prefs.getString('id') ?? '';
+    category = prefs.getString('bizSubCategory') ?? '';
+    setState(() {
+
+    });
   }
 
   ///Initial state
@@ -198,6 +312,10 @@ class _AccommodationState extends State<Accommodation> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    ///Load Local Storage
+    readLocal();
+
+    ///Get Amenities Data From Firebase
     getAmenities();
     this.setState(() {
 
@@ -345,7 +463,18 @@ class _AccommodationState extends State<Accommodation> {
                     ),
 
                     ///product price
-                    Container(
+
+                    widget.bizID == 'PFU0is7zxXfX8kMAzZFa'
+                    ? Container()
+                    :
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Price: "),
+                        priceTypeDropDown(),
+                      ],
+                    ),
+                    /*Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(primaryColor: Colors.grey),
@@ -381,19 +510,54 @@ class _AccommodationState extends State<Accommodation> {
                           focusNode: focusNodeUserPrice,
                         ),
                       ),
-                    ),
+                    ),*/
                     Padding(
                       padding: const EdgeInsets.only(top:8.0),
                       child: Center(
                         child: Text(
-                            "Bed Sizes",
+                            widget.bizID == 'PFU0is7zxXfX8kMAzZFa'
+                            ? "Room Prices"
+                            :
+                                "Bed Sizes",
                             style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 16, fontWeight: FontWeight.bold))
                         ),
                       ),
                     ),
 
+
+                    ///Check if it's a Vacation Destination
+                    widget.bizID == 'PFU0is7zxXfX8kMAzZFa'
+                        ? roomPrices.isNotEmpty
+                          ?
+                    Wrap(
+                      children:
+                      roomPrices.map((index) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(index.amount,
+                                style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 12, ))
+                            ),
+                            Text(index.frequency,
+                                style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 12, ))
+                            ),
+                            IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    roomPrices.remove(index);
+                                  });
+                                },
+                                icon: Icon(Icons.remove, color: getColor('red', 1.0),)),
+                          ],
+                        );
+                      }).toList()
+                      ,
+                    )
+                    : Container()
+                        :
                     roomBeds.isNotEmpty
-                        ?  Wrap(
+                        ?
+                    Wrap(
                       children:
                       roomBeds.map((index) {
                         return Row(
@@ -423,9 +587,65 @@ class _AccommodationState extends State<Accommodation> {
                     Flexible(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                        child:
+                        ///Check if it's a Vacation Destination
+                        widget.bizID == 'PFU0is7zxXfX8kMAzZFa'
+                        ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ///Charge
+                                      Expanded(
+                                        child: Container(
+                                          margin: const EdgeInsets.only(
+                                              left: 30.0, right: 30.0),
+                                          child: Theme(
+                                            data: Theme.of(context).copyWith(
+                                                primaryColor: Colors.grey),
+                                            child: TextFormField(
+                                              style: const TextStyle(
+                                                  color: Colors.grey),
+                                              decoration: const InputDecoration(
+                                                hintText: 'Quantity',
+                                                contentPadding:
+                                                EdgeInsets.all(5.0),
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                              controller: bedQuantityController,
+                                              onChanged: (value) {
+                                                bedQuantity = value;
+                                              },
+                                              focusNode: focusNodeBedQuantity,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      /// Payment Frequency
+                                      Expanded(child: priceFreqDropDown()),
+
+
+                                      ///Add button
+                                      IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              roomBeds.add(Bed(
+                                                  size: bedSize,
+                                                  quantity: bedQuantity));
+                                            });
+                                            bedQuantityController.clear();
+                                          },
+                                          icon: Icon(
+                                            Icons.add,
+                                            color: getColor('green', 1.0),
+                                          ))
+                                    ],
+                                  )
+                                :
+                        Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+
                             ///Bed Size
                             Expanded(child: bedSizeDropDown(bedSize)),
 

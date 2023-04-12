@@ -26,7 +26,7 @@ class CarRental extends StatefulWidget {
 class _CarRentalState extends State<CarRental> {
 
   ///Variables
-  late String name, description, price, transmission = "Manual", monthlyPrice, addressPickUp, addressDropOff, extraPrice, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
+  late String name, description, price, transmission = "Manual", monthlyPrice, addressPickUp, addressDropOff, extraPrice, extraPriceKM, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
   List<dynamic> productPictures = [];
   List<MyLocation> pickUps = [];
   List<MyLocation> dropOffs = [];
@@ -38,6 +38,7 @@ class _CarRentalState extends State<CarRental> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController monthlyPriceController = TextEditingController();
   final TextEditingController extraPriceController = TextEditingController();
+  final TextEditingController extraPriceKMController = TextEditingController();
   final TextEditingController depositController = TextEditingController();
   final TextEditingController addressPickUpController = TextEditingController();
   final TextEditingController chargePickUpController = TextEditingController();
@@ -48,6 +49,7 @@ class _CarRentalState extends State<CarRental> {
   final FocusNode focusNodeUserPrice = FocusNode();
   final FocusNode focusNodeUserMonthlyPrice = FocusNode();
   final FocusNode focusNodeUserExtraPrice = FocusNode();
+  final FocusNode focusNodeUserExtraPriceKM = FocusNode();
   final FocusNode focusNodeUserDeposit = FocusNode();
   final FocusNode focusNodeAddressPickUp = FocusNode();
   final FocusNode focusNodePickUpCharge = FocusNode();
@@ -151,6 +153,32 @@ class _CarRentalState extends State<CarRental> {
     });
   }
 
+  ///Upload Pick Up Times
+  void uploadPickUps(String docID) async{
+    pickUps.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('pickUps').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
+
+  ///Upload Drop Off Times
+  void uploadDropOffs(String docID) async{
+    dropOffs.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('dropOffs').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
+
 
   ///Post data to Firebase
   void postData() async{
@@ -165,12 +193,23 @@ class _CarRentalState extends State<CarRental> {
       'name': name,
       'description': description,
       'price': price,
+      'monthlyPrice': monthlyPrice,
+      'extraDaily': extraPrice,
+      'deposit': deposit,
       'businessID': widget.bizID,
+      'transmission': transmission,
       //'pic': productPic,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 
       Fluttertoast.showToast(msg: "Listing created Successfully");
+
+      ///Upload Drop Offs
+      uploadDropOffs(docRef.id);
+
+      ///Upload Pick Ups
+      uploadPickUps(docRef.id);
+
 
       ///Upload Product Pictures
       productPictures.forEach((element) {
@@ -430,7 +469,7 @@ class _CarRentalState extends State<CarRental> {
                             focusColor: Colors.grey,
                             fillColor: Colors.grey,
                             labelStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Extra Daily Rate',
+                            hintText: 'Extra Daily Rate /Day',
                             contentPadding: EdgeInsets.all(5.0),
                             hintStyle: TextStyle(color: Colors.grey),
                           ),
@@ -445,6 +484,45 @@ class _CarRentalState extends State<CarRental> {
                             extraPrice = value;
                           },
                           focusNode: focusNodeUserExtraPrice,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          autocorrect: false,
+                          cursorColor: Colors.grey,
+                          style: const TextStyle(
+                              color: Colors.grey
+                          ),
+                          decoration: const InputDecoration(
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.grey,
+                            fillColor: Colors.grey,
+                            labelStyle: TextStyle(color: Colors.grey),
+                            hintText: 'Extra Daily Rate /KM',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                          controller: extraPriceKMController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter your Listing Price';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            extraPriceKM = value;
+                          },
+                          focusNode: focusNodeUserExtraPriceKM,
                         ),
                       ),
                     ),
@@ -495,7 +573,7 @@ class _CarRentalState extends State<CarRental> {
                       child: Padding(
                         padding: const EdgeInsets.only(top:18.0),
                         child: Text(
-                            "Pick Up Points",
+                            "Pick Up Locations",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 18, ))
                         ),
@@ -608,7 +686,7 @@ class _CarRentalState extends State<CarRental> {
                       child: Padding(
                         padding: const EdgeInsets.only(top:18.0),
                         child: Text(
-                            "Drop Off Points",
+                            "Drop Off Locations",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 18, ))
                         ),

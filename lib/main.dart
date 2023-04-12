@@ -1,9 +1,21 @@
+import 'package:adlinc/pages/add_business.dart';
+import 'package:adlinc/pages/business_reg/accomodation.dart';
+import 'package:adlinc/pages/business_reg/bicycle.dart';
+import 'package:adlinc/pages/business_reg/car_rental.dart';
+import 'package:adlinc/pages/business_reg/fun_and_games.dart';
+import 'package:adlinc/pages/business_reg/healthcare.dart';
+import 'package:adlinc/pages/business_reg/home_care.dart';
+import 'package:adlinc/pages/business_reg/motocycle.dart';
+import 'package:adlinc/pages/business_reg/rest_menu.dart';
+import 'package:adlinc/pages/business_reg/restaurants.dart';
+import 'package:adlinc/pages/business_reg/self_love.dart';
 import 'package:adlinc/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../pages/register.dart';
 import '../pages/login.dart';
+import 'extras/data.dart';
 
 void main() async{
 WidgetsFlutterBinding.ensureInitialized();
@@ -14,12 +26,13 @@ runApp(const MyApp());
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: MyHomePage(),
     );
   }
 }
@@ -30,6 +43,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    for(int i = 1; i <= 50000; i++){
+      this.setState(() {
+        prices.add(i.toString());
+
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

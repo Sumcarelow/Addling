@@ -37,11 +37,44 @@ List<String> specialities = [
 List<String> rates = [
   "/hour", "/service"
 ];
+List<String> priceFreqs = [
+  "/hour", "/night"
+];
 
 ///Payment Methods
 List<String> payments = [
-  "Cash Only", "Medical Aid", "Digital Payment", "All"
+  "Cash", "Medical Aid", "Digital Payment"
 ];
+
+///Policy Types
+List<String> policyTypes = [
+  'Url Link',
+  'PDF Doc',
+  'Text'
+];
+
+///Business Community Categories
+List<String> businessCategories = [
+  'RESTAURANTS',
+  'FOOD TRUCKS',
+  'COFFEE SHOPS',
+  'BAKED FOODS',
+  'HOMEMADE FOODS',
+  'COFFEE SHOPS',
+  'PIZZA JOINTS',
+  'FAST FOOD JOINTS',
+  'ICE CREAM SHOPS',
+  'BOOKSTORE',
+  'TECH & ELECTRONICS',
+  'FASHION & ACCESSORY',
+  'FOOTWEAR',
+  'TOYS & GAMES',
+  'STATIONERY',
+  'JEWELERY ACCESSORY'
+];
+
+///Prices List
+List<String> prices = [];
 
 ///location class
 class MyLocation {
@@ -54,3 +87,26 @@ class Bed {
   final String size, quantity;
   Bed ({required this.size, required this.quantity});
 }
+
+///Price Class
+class Price {
+  final String amount, frequency;
+  Price ({required this.amount, required this.frequency});
+}
+
+///Menu Item
+class MenuItem {
+  final String name, description, price;
+  MenuItem ({required this.name, required this.price, required this.description});
+}
+
+///Category Class
+class Category {
+  final String name;
+  final IconData iconData;
+  Category({
+    required this.name,
+    required this.iconData
+});
+}
+

@@ -28,6 +28,7 @@ class _HealthcareState extends State<Healthcare> {
   List<DocumentSnapshot> amenities = [];
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
+  bool isCash = false, isMedicalAid = false, isDigital = false;
 
 
   final FocusNode focusNodeUserName= FocusNode();
@@ -41,6 +42,19 @@ class _HealthcareState extends State<Healthcare> {
   final TextEditingController priceController = TextEditingController();
   ///Shared Preferences instance
   late SharedPreferences prefs;
+
+  ///Get Payment Type Bool
+  bool getPaymentBool(String type){
+    bool temp = false;
+    if(type == 'Cash'){
+      temp = isCash;
+    } else if(type == 'Medical Aid'){
+      temp = isMedicalAid;
+    } else if(type == 'Digital Payment'){
+      temp = isDigital;
+    }
+    return temp;
+  }
 
   ///Load image from phone storage
   Future getImage() async {
@@ -58,11 +72,26 @@ class _HealthcareState extends State<Healthcare> {
     }
   }
 
+  ///Change checkbox
+  void setCheckBoxValue(String type){
+    if(type == 'Cash'){
+      setState(() {
+        isCash = !isCash;
+      });
+    } else if(type == 'Medical Aid'){
+      setState(() {
+        isMedicalAid = !isMedicalAid;
+      });
+    } else if(type == 'Digital Payment'){
+      setState(() {
+        isDigital = !isDigital;
+      });
+    }
+  }
 
   ///Drop down Button for BedSizes
   Widget restTypesDropDown(){
     return DropdownButton(
-
       /// Initial Value
       value: payment,
 
@@ -73,7 +102,21 @@ class _HealthcareState extends State<Healthcare> {
       items: payments.map((String items) {
         return DropdownMenuItem(
           value: items,
-          child: Text(items),
+          child: Row(
+            children: [
+              Checkbox(
+                  value: getPaymentBool(items),
+                  onChanged: (bool? value){
+                    setState(() {
+                      setCheckBoxValue(items);
+                    });
+                  }
+
+              )
+              ,
+              Text(items),
+            ],
+          ),
         );
       }).toList(),
       // After selecting the desired option,it will
@@ -95,8 +138,9 @@ class _HealthcareState extends State<Healthcare> {
       'name': name,
       'description': description,
       'consultationFee': consultationFee,
+      'payment': payment,
       'businessID': widget.bizID,
-      'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
     }).then((value) async {
 
       ///Upload Product Pictures
@@ -165,6 +209,32 @@ class _HealthcareState extends State<Healthcare> {
       });
       Fluttertoast.showToast(msg: err.toString());
     });
+  }
+
+  ///Price Dropdown
+  Widget priceTypeDropDown() {
+    return DropdownButton<String>(
+      value: consultationFee,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          consultationFee = value!;
+        });
+      },
+      items: prices.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text('R$value'),
+        );
+      }).toList(),
+    );
   }
 
 
@@ -306,7 +376,15 @@ class _HealthcareState extends State<Healthcare> {
                 ),
               ),
 
-              Center(
+              ///Consultation Fee Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Price: "),
+                  priceTypeDropDown(),
+                ],
+              ),
+              /*Center(
                 child: Container(
                   margin: const EdgeInsets.only(left: 30.0, right: 30.0),
                   child: Theme(
@@ -347,7 +425,7 @@ class _HealthcareState extends State<Healthcare> {
                     ),
                   ),
                 ),
-              ),
+              ),*/
 
               ///Restaurant type Selection
               Center(
@@ -376,7 +454,7 @@ class _HealthcareState extends State<Healthcare> {
                     style: ButtonStyle(
                       backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
                     ),
-                    child: const Text("Add Listing"),
+                    child: const Text("Add Health Care Listing"),
                   ),
                 ),
               )

@@ -124,6 +124,31 @@ class _BicycleState extends State<Bicycle> {
     });
   }
 
+  ///Upload Pick Up Times
+  void uploadPickUps(String docID) async{
+    pickUps.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('pickUps').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
+
+  ///Upload Drop Off Times
+  void uploadDropOffs(String docID) async{
+    dropOffs.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('dropOffs').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
 
   ///Post data to Firebase
   void postData() async{
@@ -138,9 +163,11 @@ class _BicycleState extends State<Bicycle> {
       'name': name,
       'description': description,
       'price': price,
+      'monthlyRate': monthlyPrice,
+      'extraDaily': extraPrice,
+      'deposit': deposit,
       'businessID': widget.bizID,
-      //'pic': productPic,
-      'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
     }).then((value) async {
 
       Fluttertoast.showToast(msg: "Listing created Successfully");
@@ -149,6 +176,13 @@ class _BicycleState extends State<Bicycle> {
        productPictures.forEach((element) {
         uploadProfilePicture(File(element.path), docRef.id, name);
       });
+
+       ///Upload Drop Offs
+      uploadDropOffs(docRef.id);
+
+       ///Upload Pick Ups
+      uploadPickUps(docRef.id);
+
 
       ///Navigate to Home Page
       Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));

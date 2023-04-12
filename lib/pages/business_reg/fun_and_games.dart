@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import '../../extras/colors.dart';
+import '../../extras/data.dart';
 import '../../extras/variables.dart';
 import '../home.dart';
 class FunAndGames extends StatefulWidget {
@@ -30,12 +31,14 @@ class _FunAndGamesState extends State<FunAndGames> {
   final FocusNode focusNodeUserName= FocusNode();
   final FocusNode focusNodeUserDescr = FocusNode();
   final FocusNode focusNodeUserPrice = FocusNode();
+  final FocusNode focusNodeAgeRestr = FocusNode();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descrController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
   ///Shared Preferences instance
   late SharedPreferences prefs;
 
@@ -54,6 +57,31 @@ class _FunAndGamesState extends State<FunAndGames> {
         productPictures = images;
       });
     }
+  }
+
+  Widget priceTypeDropDown() {
+    return DropdownButton<String>(
+      value: price,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          price = value!;
+        });
+      },
+      items: prices.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text('R$value'),
+        );
+      }).toList(),
+    );
   }
 
   ///Upload Profile Image to firebase storage
@@ -108,32 +136,17 @@ class _FunAndGamesState extends State<FunAndGames> {
     });
   }
 
-  // ///Drop down Button for BedSizes
-  // Widget bedSizeDropDown(String value){
-  //   return DropdownButton(
-  //
-  //     /// Initial Value
-  //     value: value,
-  //
-  //     /// Down Arrow Icon
-  //     icon: const Icon(Icons.keyboard_arrow_down),
-  //
-  //     /// Array list of items
-  //     items: bedSizes.map((String items) {
-  //       return DropdownMenuItem(
-  //         value: items,
-  //         child: Text(items),
-  //       );
-  //     }).toList(),
-  //     // After selecting the desired option,it will
-  //     // change button value to selected value
-  //     onChanged: (String? newValue) {
-  //       setState(() {
-  //         value = newValue!;
-  //       });
-  //     },
-  //   );
-  // }
+  ///Upload Amenities Information
+  void uploadAmenities(String roomID) async{
+    ///Go through Beds List and add each bed to room
+    myAmenities.forEach((amenity) {
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('amenities').doc();
+      docRef.set({
+        'id': docRef.id,
+        'name': amenity['name'],
+      });
+    });
+  }
 
 
   ///Post data to Firebase
@@ -145,6 +158,7 @@ class _FunAndGamesState extends State<FunAndGames> {
       'name': name,
       'description': description,
       'price': price,
+      'age': ageRestr,
       'businessID': widget.bizID,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
@@ -155,6 +169,9 @@ class _FunAndGamesState extends State<FunAndGames> {
       });
 
       Fluttertoast.showToast(msg: "Listing created Successfully");
+
+      ///Upload Amenities List
+      uploadAmenities(docRef.id);
 
 
 
@@ -333,8 +350,56 @@ class _FunAndGamesState extends State<FunAndGames> {
                       ),
                     ),
 
-                    ///product price
+                    ///Age Restrictions
                     Container(
+                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.grey,
+                          style: const TextStyle(
+                              color: Colors.grey
+                          ),
+                          decoration: const InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.grey,
+                            fillColor: Colors.grey,
+                            labelStyle: TextStyle(color: Colors.grey),
+                            hintText: 'Age Restrictions',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey),
+
+                          ),
+                          controller: ageController,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please enter the age restriction';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            ageRestr = value;
+                          },
+                          focusNode: focusNodeAgeRestr,
+                        ),
+                      ),
+                    ),
+
+
+
+                    ///product price
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Price: "),
+                        priceTypeDropDown(),
+                      ],
+                    ),
+                    /*Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(primaryColor: Colors.grey),
@@ -370,7 +435,10 @@ class _FunAndGamesState extends State<FunAndGames> {
                           focusNode: focusNodeUserPrice,
                         ),
                       ),
-                    ),
+                    ),*/
+
+
+                    ///Amenities
                     Padding(
                       padding: const EdgeInsets.only(top:8.0),
                       child: Center(

@@ -13,7 +13,6 @@ import '../../extras/colors.dart';
 import '../../extras/data.dart';
 import '../../extras/variables.dart';
 import 'dart:io';
-
 import '../home.dart';
 
 
@@ -125,6 +124,32 @@ class _MotorcycleState extends State<Motorcycle> {
     });
   }
 
+  ///Upload Pick Up Times
+  void uploadPickUps(String docID) async{
+    pickUps.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('pickUps').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
+
+  ///Upload Drop Off Times
+  void uploadDropOffs(String docID) async{
+    dropOffs.forEach((pickUp) {
+      ///Add new user to Firebase
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(docID).collection('dropOffs').doc();
+      docRef.set({
+        'id': docRef.id,
+        'address': pickUp.address,
+        'charge': pickUp.charge
+      });
+    });
+  }
+
 
   ///Post data to Firebase
   void postData() async{
@@ -140,11 +165,22 @@ class _MotorcycleState extends State<Motorcycle> {
       'description': description,
       'price': price,
       'businessID': widget.bizID,
-      //'pic': productPic,
+      'transmission': transmission,
+      'monthlyPrice': monthlyPrice,
+      'deposit': deposit,
+      'extraDaily': extraPrice,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 
       Fluttertoast.showToast(msg: "Listing created Successfully");
+
+
+      ///Upload Drop Offs
+      uploadDropOffs(docRef.id);
+
+      ///Upload Pick Ups
+      uploadPickUps(docRef.id);
+
 
       ///Upload Product Pictures
       productPictures.forEach((element) {
@@ -598,114 +634,6 @@ class _MotorcycleState extends State<Motorcycle> {
                                 });
                                 chargePickUpController.clear();
                                 addressPickUpController.clear();
-                              },
-                              icon: Icon(Icons.add, color: getColor('green', 1.0),))
-                        ],
-                      ),
-                    ),
-                    ///Drop Off points
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top:18.0),
-                        child: Text(
-                            "Drop Off Points",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 18, ))
-                        ),
-                      ),
-                    ),
-                    dropOffs.isNotEmpty
-                        ? Wrap(
-                      children:
-                      dropOffs.map((index) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(index.address,
-                                style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 12, ))
-                            ),
-                            Text(index.charge,
-                                style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 12, ))
-                            ),
-                            IconButton(
-                                onPressed: (){
-                                  setState(() {
-                                    dropOffs.remove(index);
-
-                                  });
-                                },
-                                icon: Icon(Icons.remove, color: getColor('red', 1.0),)),
-                          ],
-                        );
-                      }).toList()
-                      ,
-                    )
-                        : Container(),
-                    Flexible(
-                      child: Row(
-                        children: [
-                          ///Address
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                              child: Theme(
-                                data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                                child: TextFormField(
-                                  style: const TextStyle(
-                                      color: Colors.grey
-                                  ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Location',
-                                    contentPadding: EdgeInsets.all(5.0),
-                                    hintStyle: TextStyle(color: Colors.grey),
-
-                                  ),
-                                  controller: addressDropOffController,
-
-                                  onChanged: (value) {
-                                    addressDropOff = value;
-                                  },
-                                  focusNode: focusNodeAddressDropOff,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          ///Charge
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                              child: Theme(
-                                data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                                child: TextFormField(
-                                  style: const TextStyle(
-                                      color: Colors.grey
-                                  ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Charge',
-                                    contentPadding: EdgeInsets.all(5.0),
-                                    hintStyle: TextStyle(color: Colors.grey),
-
-                                  ),
-                                  controller: chargeDropOffController,
-                                  onChanged: (value) {
-                                    dropOffCharge = value;
-                                  },
-                                  focusNode: focusNodeDropOffCharge,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          ///Add button
-                          IconButton(
-                              onPressed: (){
-                                setState(() {
-                                  dropOffs.add(MyLocation(name: 'dropoff', address: addressDropOff, charge: dropOffCharge));
-
-                                });
-                                chargeDropOffController.clear();
-                                addressDropOffController.clear();
                               },
                               icon: Icon(Icons.add, color: getColor('green', 1.0),))
                         ],

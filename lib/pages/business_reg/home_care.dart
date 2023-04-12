@@ -173,7 +173,8 @@ class _HomeCareState extends State<HomeCare> {
       'id': docRef.id,
       'name': name,
       'description': description,
-      'price': price,
+      'price': '$price/$rate',
+      'speciality': speciality,
       'businessID': widget.bizID,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
@@ -193,6 +194,31 @@ class _HomeCareState extends State<HomeCare> {
     });
   }
 
+  ///Price Dropdown
+  Widget priceTypeDropDown() {
+    return DropdownButton<String>(
+      value: price,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          price = value!;
+        });
+      },
+      items: prices.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text('R$value'),
+        );
+      }).toList(),
+    );
+  }
 
 
 
@@ -336,6 +362,9 @@ class _HomeCareState extends State<HomeCare> {
                 ),
               ),
 
+              ///Price Section
+
+
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -415,7 +444,7 @@ class _HomeCareState extends State<HomeCare> {
                     style: ButtonStyle(
                       backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
                     ),
-                    child: const Text("Add Listing"),
+                    child: const Text("Add Home Care Listing"),
                   ),
                 ),
               )

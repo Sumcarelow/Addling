@@ -47,7 +47,7 @@ class _SelfLoveState extends State<SelfLove> {
   ///Get amenities list from Firebase
   void getAmenities() async{
     final QuerySnapshot result =
-    await FirebaseFirestore.instance.collection('amenities').doc('mOu2Re0KeyzVL4iFlRE1').collection('amenities').get();
+    await FirebaseFirestore.instance.collection('amenities').doc('bGNuXNBvc7joFX9Nnfl2').collection('amenities').get();
     final List<DocumentSnapshot> documents = result.docs;
 
     if(documents.isEmpty){
@@ -187,6 +187,31 @@ class _SelfLoveState extends State<SelfLove> {
   }
 
 
+  ///Price Dropdown
+  Widget priceTypeDropDown() {
+    return DropdownButton<String>(
+      value: price,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        //color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          price = value!;
+        });
+      },
+      items: prices.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text('R$value'),
+        );
+      }).toList(),
+    );
+  }
 
 
   ///Initial state
@@ -195,6 +220,12 @@ class _SelfLoveState extends State<SelfLove> {
     // TODO: implement initState
     super.initState();
     getAmenities();
+    for(int i = 1; i <= 50000; i++){
+      this.setState(() {
+        prices.add(i.toString());
+
+      });
+    }
     this.setState(() {
 
     });
@@ -340,7 +371,14 @@ class _SelfLoveState extends State<SelfLove> {
 
 
               ///product price
-              Container(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Price: "),
+                  priceTypeDropDown(),
+                ],
+              ),
+             /* Container(
                 margin: const EdgeInsets.only(left: 30.0, right: 30.0),
                 child: Theme(
                   data: Theme.of(context).copyWith(primaryColor: Colors.grey),
@@ -376,7 +414,7 @@ class _SelfLoveState extends State<SelfLove> {
                     focusNode: focusNodeUserPrice,
                   ),
                 ),
-              ),
+              ),*/
 
               ///Restaurant type Selection
               Center(
@@ -447,7 +485,7 @@ class _SelfLoveState extends State<SelfLove> {
                     style: ButtonStyle(
                       backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
                     ),
-                    child: const Text("Add Game Listing"),
+                    child: const Text("Add Self Love Listing"),
                   ),
                 ),
               )
