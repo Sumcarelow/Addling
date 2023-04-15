@@ -985,7 +985,6 @@ class _AddBusinessComminityState extends State<AddBusinessComminity> {
                             ),
                           ),
 
-
                           ///Sunday
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -1132,9 +1131,6 @@ class _AddBusinessComminityState extends State<AddBusinessComminity> {
                               ),
                               //color: colors[2],
                               onPressed: (){
-                                // ///Set Nav
-                                // setGroupNav(subCategory);
-                                // Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
                                 registerFormKey.currentState!.validate()
                                     ? onRegisterBusinessPress()
                                     : Fluttertoast.showToast(msg: "Please fill in the missing or incorrect information.");

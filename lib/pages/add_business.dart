@@ -590,7 +590,7 @@ class _AddBusinessState extends State<AddBusiness> {
             ? Container()
             : Icon(getIcon(element)),
             Text('$element \n$sub'),
-            element == 'Please select your business Type for Bookings' || !showSubDropDownButton
+            element == 'Please select your business Type for Bookings'
                 ? Container()
                 :
             subMenuCategoryDropDown(element),
