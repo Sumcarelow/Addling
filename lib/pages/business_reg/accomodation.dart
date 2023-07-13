@@ -31,7 +31,7 @@ class _AccommodationState extends State<Accommodation> {
   List<dynamic> productPictures = [];
   List<Bed> roomBeds = [];
   List<Price> roomPrices = [];
-  late String id, name, description, price, productPic = logoURL, beds, sizes, bedSize = "Single",
+  late String id, name, description, price = prices[0], productPic = logoURL, beds, sizes, bedSize = "Single",
       priceFrequency, bedQuantity, category;
   var profileImage;
   final TextEditingController nameController = TextEditingController();
@@ -67,6 +67,7 @@ class _AccommodationState extends State<Accommodation> {
 
   ///Upload Profile Image to firebase storage
   Future uploadProfilePicture(File image, String docID, String name) async {
+    print("Here I go.............................");
     ///Set OnLoading Screen
     setState(() {
       isLoading = true;
@@ -140,7 +141,7 @@ class _AccommodationState extends State<Accommodation> {
       // change button value to selected value
       onChanged: (String? newValue) {
         setState(() {
-          value = newValue!;
+          bedSize = newValue!;
         });
       },
     );
@@ -192,7 +193,7 @@ class _AccommodationState extends State<Accommodation> {
     ///Go through Beds List and add each bed to room
 
     roomPrices.forEach((price) {
-      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('beds').doc();
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('prices').doc();
       docRef.set({
         'id': docRef.id,
         'amount': price.amount,
@@ -251,6 +252,10 @@ class _AccommodationState extends State<Accommodation> {
       'description': description,
       'price': price,
       'businessID': widget.bizID,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'ownerID': id,
       'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
     }).then((value) async {
 
@@ -259,12 +264,15 @@ class _AccommodationState extends State<Accommodation> {
         uploadProfilePicture(File(element.path), docRef.id, name);
       });
 
+
+
       ///Upload Beds List or Price List
-      if(widget.bizID == 'PFU0is7zxXfX8kMAzZFa' ){
-        uploadPricesInformation(docRef.id);
-      } else {
-        uploadBedsInformation(docRef.id);
-      }
+
+      uploadBedsInformation(docRef.id);
+      //uploadPricesInformation(docRef.id);
+      // if(widget.bizID == 'PFU0is7zxXfX8kMAzZFa' ){
+      // } else {
+      // }
 
       ///Upload Amenities List
       uploadAmenities(docRef.id);
@@ -314,12 +322,9 @@ class _AccommodationState extends State<Accommodation> {
     super.initState();
     ///Load Local Storage
     readLocal();
-
     ///Get Amenities Data From Firebase
     getAmenities();
-    this.setState(() {
 
-    });
   }
 
   @override
@@ -613,7 +618,10 @@ class _AccommodationState extends State<Accommodation> {
                                               ),
                                               controller: bedQuantityController,
                                               onChanged: (value) {
-                                                bedQuantity = value;
+                                                setState(() {
+
+                                                  bedQuantity = value;
+                                                });
                                               },
                                               focusNode: focusNodeBedQuantity,
                                             ),

@@ -26,7 +26,7 @@ class CarRental extends StatefulWidget {
 class _CarRentalState extends State<CarRental> {
 
   ///Variables
-  late String name, description, price, transmission = "Manual", monthlyPrice, addressPickUp, addressDropOff, extraPrice, extraPriceKM, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
+  late String name, description, price = prices[0], transmission = "Manual", monthlyPrice, addressPickUp, addressDropOff, extraPrice, extraPriceKM, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
   List<dynamic> productPictures = [];
   List<MyLocation> pickUps = [];
   List<MyLocation> dropOffs = [];

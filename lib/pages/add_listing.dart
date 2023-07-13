@@ -117,6 +117,9 @@ class _AddListingState extends State<AddListing> {
       'price': price,
       'businessID': widget.bizID,
       'pic': productPic,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 

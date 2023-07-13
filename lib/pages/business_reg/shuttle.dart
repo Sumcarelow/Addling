@@ -27,7 +27,7 @@ class Shuttle extends StatefulWidget {
 class _ShuttleState extends State<Shuttle> {
 
   ///Variables
-  late String name, description, price, transmission = 'Manual', from, to, pickUpSpot, addressPickUp, addressDropOff, dropOff, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
+  late String name, description, price = prices[0], transmission = 'Manual', from, to, pickUpSpot, addressPickUp, addressDropOff, dropOff, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
   List<dynamic> productPictures = [];
   List<MyLocation> pickUps = [];
   List<MyLocation> dropOffs = [];

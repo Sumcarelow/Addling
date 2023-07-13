@@ -1,13 +1,10 @@
+import 'dart:async';
 import 'package:adlinc/extras/data.dart';
-import 'package:adlinc/pages/business_reg/bicycle.dart';
-import 'package:adlinc/pages/business_reg/car_rental.dart';
 import 'package:adlinc/pages/business_reg/fun_and_games.dart';
 import 'package:adlinc/pages/business_reg/healthcare.dart';
 import 'package:adlinc/pages/business_reg/home_care.dart';
-import 'package:adlinc/pages/business_reg/motocycle.dart';
 import 'package:adlinc/pages/business_reg/restaurants.dart';
 import 'package:adlinc/pages/business_reg/self_love.dart';
-import 'package:adlinc/pages/business_reg/shuttle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
@@ -23,8 +20,12 @@ import '../extras/functions.dart';
 import '../extras/variables.dart';
 import 'dart:io';
 import '../extras/colors.dart';
+import 'address_search/address_searching.dart';
+import 'address_search/places.dart';
 import 'business_reg/accomodation.dart';
+import 'business_reg/add_Listing_new.dart';
 import 'home.dart';
+import 'package:uuid/uuid.dart';
 
 class AddBusiness extends StatefulWidget {
   const AddBusiness({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class AddBusiness extends StatefulWidget {
 
 class _AddBusinessState extends State<AddBusiness> {
   ///Form Variables
-  late String id, docID = '', name, businessEmail, phone, policy, policyType = policyTypes[0],
+  late String id, docID = '', name, description, businessEmail, phone, policy, coverImageUrl = logoURL, policyType = policyTypes[0],
       logo = logoURL, address, group = '',
       category = 'Please select your business Type for Bookings',
       subCategory = 'Please select your business sub-category';
@@ -44,15 +45,19 @@ class _AddBusinessState extends State<AddBusiness> {
   List<String> subCategoriesList = [];
   List<DocumentSnapshot> categories = [];
   List<DocumentSnapshot> subCategories = [];
+  List<dynamic> businessPictures = [];
+  List<businessDay> businessHours = [];
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController policyController = TextEditingController();
   final FocusNode focusNodeUserEmail = FocusNode();
   final FocusNode focusNodeUserName = FocusNode();
+  final FocusNode focusNodeDescription = FocusNode();
   final FocusNode focusNodeUserLastName = FocusNode();
   final FocusNode focusNodePhone= FocusNode();
   final FocusNode focusNodeAddress = FocusNode();
@@ -61,7 +66,7 @@ class _AddBusinessState extends State<AddBusiness> {
 
   late GlobalKey dropdownKey;
   late Widget nextPage = Home();
-  var policyDoc;
+  var policyDoc, coverImage;
 
 
   ///Select PDF Policy doc from device
@@ -78,6 +83,75 @@ class _AddBusinessState extends State<AddBusiness> {
         policyDoc = File((images.first.path).toString());
       });
       uploadProfilePicture();
+    }
+  }
+
+///Upload Business Pictures
+  Future uploadBusinessPictures(File image, String docID, String name) async {
+    //print("Here I go.............................");
+    ///Set OnLoading Screen
+    setState(() {
+      isLoading = true;
+      loadingScreenMsg = "Uploading room pictures...";
+    });
+
+    ///Shared Preferences Instance
+    prefs = await SharedPreferences.getInstance();
+
+    ///File Name on Firebase storage
+    String fileName = name + 'business' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
+
+    ///Create storage reference and upload image
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    UploadTask uploadTask = reference.putFile(image);
+    TaskSnapshot storageTaskSnapshot;
+    uploadTask.then((value){
+      ///If Upload was successful
+      storageTaskSnapshot = value;
+
+      ///Get Url
+      storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl)async{
+
+        FirebaseFirestore.instance.collection("listings").doc(docID).collection('pictures').doc()
+            .set({
+          "location": downloadUrl
+        });
+        setState(() {
+          //profilePic = downloadUrl;
+          isLoading = false;
+        });
+
+        //await prefs.setString('profilePic', profilePic);
+        Fluttertoast.showToast(msg: "Pictures Uploaded Successfully.");
+      }, onError: (err){
+        ///Set Off Loading Screen
+        setState(() {
+          isLoading = false;
+        });
+        Fluttertoast.showToast(msg: err.toString());
+      });
+    }, onError: (err){
+      ///Set Off Loading Screen
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: err.toString());
+    });
+  }
+
+  ///Select Business Cover Image
+  Future getCoverImage() async {
+    var images = (
+        await FilePicker.platform.pickFiles(
+            type: FileType.image,
+            dialogTitle: "Please select a cover image."
+        ))?.files;
+
+    if(images != null && images.length != 0){
+      setState(() {
+        coverImage = File((images.first.path).toString());
+      });
+      uploadCoverImage();
     }
   }
 
@@ -164,6 +238,7 @@ class _AddBusinessState extends State<AddBusiness> {
     ///Unfocus all nodes
     focusNodeUserEmail.unfocus();
     focusNodeUserName.unfocus();
+    focusNodeDescription.unfocus();
     focusNodePhone.unfocus();
     focusNodeAddress.unfocus();
 
@@ -201,28 +276,114 @@ class _AddBusinessState extends State<AddBusiness> {
       'email': businessEmail,
       'phone': phone,
       'address': address,
+      'bio': description,
       'category': category,
       'subCategory': subCategory,
       'logo': logo,
+      //'coverImage': coverImageUrl,
       'status': 'pending',
+      'type': 'booking',
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'ownerID': id,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'operationTimes': {
+        'Monday': '${mondayOpenController.text} - ${mondayCloseController.text}',
+        'Tuesday': '${tuesdayOpenController.text} - ${tuesdayCloseController.text}',
+        'Wednesday': '${wedOpenController.text} - ${wedCloseController.text}',
+        'Thursday': '${thursdayOpenController.text} - ${thursdayCloseController.text}',
+        'Friday': '${fridayOpenController.text} - ${fridayCloseController.text}',
+        'Saturday': '${saturdayOpenController.text} - ${saturdayCloseController.text}',
+        'Sunday': '${sundayOpenController.text} - ${sundayCloseController.text}'
+      }
     }).then((value) async {
 
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-
-      ///Save Business Firebase Data to local Storage
-      setState(() {
-        docID = docRef.id;
-        prefs.setString('bizID', docRef.id);
-        prefs.setString('bizName', name);
-        prefs.setString('bizSubCategory', subCategory);
+      ///Upload Business Pictures
+      businessPictures.forEach((element) {
+        uploadBusinessPictures(File(element.path), docRef.id, name);
       });
 
-      ///Set Nav
-      setGroupNav(subCategory);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
+      ///Save Business Firebase Data to local Storage
+      await prefs.setString('bizID', docRef.id);
+      await prefs.setString('bizName', name);
+      await prefs.setString('bizSubCategory', subCategory);
 
     });
+    setState(() {
+      docID = docRef.id;
+    });
+    ///Set Nav
+    //setGroupNav(subCategory);
+    if(subCategory == 'B&B' || subCategory == 'HOTEL' || subCategory == 'VACATION DESTINATION' ){
+
+      Fluttertoast.showToast(msg: "Business Registration Successful");
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  Accommodation(group: 'ACCOMMODATION', bizID: docID)));
+
+    }
+    else if (subCategory == 'RESTAURANTS'){
+      Fluttertoast.showToast(msg: "Business Registration Successful");
+     // Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
+     Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurant(group: 'RESTAURANTS', bizID: docID)));
+    }
+    else if (subCategory == 'FUN & GAMES'){
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
+     Navigator.push(context, MaterialPageRoute(builder: (context) => FunAndGames(group: 'games', bizID: docID)));
+    }
+    else if (
+            subCategory == 'SELF LOVE' ||
+            subCategory == 'MAKE-UP ARTIST' ||
+            subCategory == 'HAIRDRESSING' ||
+            subCategory == 'MANI AND PEDI' ||
+            subCategory == 'TATTOO PARLOUR' ||
+            subCategory == 'BODY PIERCING' ||
+            subCategory == 'NAIL TECHNICIAN' ||
+            subCategory == 'MASSAGE SALON/THERAPIST' ||
+            subCategory == 'FACIAL SPA' ||
+            subCategory == 'FOOT MASSAGE' ||
+            subCategory == 'SKIN CARE CONSULTING'
+    ){
+      Fluttertoast.showToast(msg: "Business Registration Successful");
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SelfLove(group: 'self', bizID: docID)));
+    }
+    else if(
+    subCategory == 'HEALTHCARE' ||
+    subCategory == 'DENTIST' ||
+    subCategory == 'PHYSICIAN' ||
+    subCategory == 'GENERAL PRACTISIONER' ||
+    subCategory == 'THERAPIST' ||
+    subCategory == 'DERMATOLOGIST' ||
+    subCategory == 'COUNSELLOR'
+    ){
+      Fluttertoast.showToast(msg: "Business Registration Successful");
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Healthcare(group: 'healthcare', bizID: docID)));
+    }
+    else if (
+    subCategory == 'HOME CARE' ||
+    subCategory == 'LAWN-MOWER' ||
+    subCategory == 'PLUMBING' ||
+    subCategory == 'CARPET CLEANING' ||
+    subCategory == 'MOVERS' ||
+    subCategory == 'ELECTRICIAN' ||
+    subCategory == 'MECHANIC' ||
+    subCategory == 'ROOF REPAIR' ||
+    subCategory == 'FLOORING' ||
+    subCategory == 'GUTTER CLEAN' ||
+    subCategory == 'PAINTER' ||
+    subCategory == 'LANDSCAPER'
+
+    ) {
+      Fluttertoast.showToast(msg: "Business Registration Successful");
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeCare(group: 'homeCare', bizID: docID)));
+    }
+
   }
 
 
@@ -300,28 +461,41 @@ class _AddBusinessState extends State<AddBusiness> {
         }
     }
   }
+
 ///Set Next Reg Page variable according to the subCategory
+
   void setGroupNav(String category){
-    switch (category){
+    //print("I come in with: $category");
+
+    switch (subCategory){
       case 'B&B':
       case'HOTEL':
       case 'VACATION DESTINATION':
-        return
-          this.setState(() {
-            nextPage = Accommodation(group: 'ACCOMMODATION', bizID: docID);
-          });
+        {
 
+          print("We are here now");
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      Accommodation(group: 'ACCOMMODATION', bizID: docID)));
+
+        }
         break;
       case 'RESTAURANT':
         {
-          this.setState(() {
-            nextPage = Restaurant(group: 'RESTAURANT', bizID: docID);
+          print("We are here now");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurant(group: 'RESTAURANT', bizID: docID)));
+          setState(() {
+            //nextPage = Restaurant(group: 'RESTAURANT', bizID: docID);
           });
         }
         break;
       case 'FUN & GAMES':
         {
-          this.setState(() {
+          print("We are here now");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => FunAndGames(group: 'games', bizID: docID)));
+          setState(() {
             nextPage = FunAndGames(group: 'games', bizID: docID);
           });
         }
@@ -337,27 +511,16 @@ class _AddBusinessState extends State<AddBusiness> {
       case 'FACIAL SPA':
       case 'FOOT MASSAGE':
       case 'SKIN CARE CONSULTING':
-
         {
-          this.setState(() {
+          print("We are here now");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => SelfLove(group: 'self', bizID: docID)));
+          setState(() {
             nextPage = SelfLove(group: 'self', bizID: docID);
           });
         }
         break;
-      case 'BICYCLE RENTAL':
-        {
-          this.setState(() {
-            nextPage = Bicycle(group: 'bicycle', bizID: docID);
-          });
-        }
-        break;
-      case 'CAR RENTAL':
-        {
-          this.setState(() {
-            nextPage = CarRental(group: 'carRental', bizID: docID);
-          });
-        }
-        break;
+
+
       case 'HEALTHCARE':
       case 'DENTIST':
       case 'PHYSICIAN':
@@ -366,7 +529,9 @@ class _AddBusinessState extends State<AddBusiness> {
       case 'DERMATOLOGIST':
       case 'COUNSELLOR':
         {
-          this.setState(() {
+          print("We are here now");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Healthcare(group: 'healthcare', bizID: docID)));
+          setState(() {
             nextPage = Healthcare(group: 'healthcare', bizID: docID);
           });
         }
@@ -386,29 +551,21 @@ class _AddBusinessState extends State<AddBusiness> {
       case 'PAINTER':
       case 'LANDSCAPER':
         {
-          this.setState(() {
+          print("We are here now");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeCare(group: 'homeCare', bizID: docID)));
+          setState(() {
             nextPage = HomeCare(group: 'homeCare', bizID: docID);
           });
         }
         break;
-      case 'MOTORCYCLE':
+
+      default:
         {
-          this.setState(() {
-            nextPage = Motorcycle(group: 'motorcycle', bizID: docID);
-          });
-        }
-        break;
-      case 'SHUTTLE':
-        {
-          this.setState(() {
-            nextPage = Shuttle(group: 'shuttle', bizID: docID);
-          });
+
         }
     }
+    //print("I exzit with $nextPage and $docID");
   }
-
-
-  ///Select Business Logo
 
   ///Upload Business Logo to firebase storage
   Future uploadProfilePicture() async {
@@ -508,6 +665,56 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
+
+  ///Upload PDF Document
+  Future uploadCoverImage() async {
+
+    ///Set OnLoading Screen
+    setState(() {
+      isLoading = true;
+      loadingScreenMsg = "Uploading cover image";
+    });
+
+    ///Shared Preferences Instance
+    prefs = await SharedPreferences.getInstance();
+
+    ///File Name on Firebase storage
+    String fileName = id + 'Cover-Image' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
+
+    ///Create storage reference and upload image
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    UploadTask uploadTask = reference.putFile(coverImage);
+    TaskSnapshot storageTaskSnapshot;
+    uploadTask.then((value){
+
+      ///If Upload was successful
+      storageTaskSnapshot = value;
+
+      ///Get Url
+      storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl)async{
+        setState(() {
+          coverImageUrl = downloadUrl;
+          isLoading = false;
+        });
+
+        //await prefs.setString('profilePic', profilePic);
+        Fluttertoast.showToast(msg: "Business Policy Uploaded Successfully.");
+      }, onError: (err){
+        ///Set Off Loading Screen
+        setState(() {
+          isLoading = false;
+        });
+        Fluttertoast.showToast(msg: err.toString());
+      });
+    }, onError: (err){
+      ///Set Off Loading Screen
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: err.toString());
+    });
+  }
+
   ///Load image from phone storage
   Future getImage() async {
     var images = (
@@ -521,6 +728,24 @@ class _AddBusinessState extends State<AddBusiness> {
         profileImage = File((images.first.path).toString());
       });
       uploadProfilePicture();
+    }
+  }
+
+  ///Load Business Pictures
+
+  ///Load image from phone storage
+  Future getImages() async {
+    var images = (
+        await FilePicker.platform.pickFiles(
+            allowMultiple: true,
+            type: FileType.image,
+            dialogTitle: "Please select business pictures."
+        ))?.files;
+
+    if(images != null && images.length != 0){
+      setState(() {
+        businessPictures = images;
+      });
     }
   }
 
@@ -706,6 +931,17 @@ class _AddBusinessState extends State<AddBusiness> {
     );
   }
 
+
+  void getAmenities() async{
+   // print("STarted pilling");
+    final QuerySnapshot result =
+    await FirebaseFirestore.instance.collection('newAmenities').get();
+   // print("Done pulling");
+    final List<DocumentSnapshot> documents = result.docs;
+
+
+  }
+
   ///Initial State
   @override
   void initState() {
@@ -714,6 +950,8 @@ class _AddBusinessState extends State<AddBusiness> {
     dropdownKey = GlobalKey();
     getCategories('main');
     getCategories('sub');
+    getAmenities();
+
     loadData();
   }
 
@@ -861,8 +1099,44 @@ class _AddBusinessState extends State<AddBusiness> {
                         ),
                       ),
                     ),
+                    ///Business Name
+                    Container(
+                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.grey,
+                          style: const TextStyle(
+                              color: Colors.grey
+                          ),
+                          decoration: const InputDecoration(
 
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.grey,
+                            fillColor: Colors.grey,
+                            labelStyle: TextStyle(color: Colors.grey),
+                            hintText: 'Business Bio',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey),
 
+                          ),
+                          controller: descriptionController,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please enter your Business Bio';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            description = value;
+                          },
+                          focusNode: focusNodeDescription,
+                        ),
+                      ),
+                    ),
                     ///Business Email Address
                     Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -900,7 +1174,6 @@ class _AddBusinessState extends State<AddBusiness> {
                         ),
                       ),
                     ),
-
                     ///Phone Number
                     Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -933,8 +1206,6 @@ class _AddBusinessState extends State<AddBusiness> {
                         ),
                       ),
                     ),
-
-
                     ///Address
                     Container(
                       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -944,6 +1215,30 @@ class _AddBusinessState extends State<AddBusiness> {
                           style: const TextStyle(
                               color: Colors.grey
                           ),
+
+                          readOnly: true,
+                          onTap: () async {
+                            final sessionToken = Uuid().v4();
+                            final Suggestion? result = await showSearch(
+                              context: context,
+                              delegate: AddressSearch(),
+                            );
+                            if (result != null) {
+                              final placeDetails = await PlaceApiProvider(sessionToken)
+                                  .getPlaceDetailFromId(result.placeId);
+                              //print("Here I am ........... ${result.placeId}");
+
+                              setState(() {
+                                addressController.text = result.description;
+                                address = result.description;
+                               // _streetNumber = placeDetails.streetNumber;
+                                //_street = placeDetails.street;
+                                //_city = placeDetails.city;
+                                //_zipCode = placeDetails.zipCode;
+                              });
+                            }
+                            // placeholder for our places search later
+                          },
                           decoration: const InputDecoration(
                             hintText: 'Business Address',
                             contentPadding: EdgeInsets.all(5.0),
@@ -968,6 +1263,37 @@ class _AddBusinessState extends State<AddBusiness> {
                     ///Category selection
                     Flexible(
                         child: categoryDropDown()),
+
+                    ///Product Images
+                    businessPictures.isEmpty
+                        ? GestureDetector(
+                      onTap: getImages,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.camera_alt,
+                          ),
+                          const Text('Upload Business Images')
+                        ],
+                      ),
+                    )
+                        : Wrap(
+                      spacing: MediaQuery.of(context).size.width * 0.05,
+                      children: businessPictures.map((picture) {
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.08,
+                          width: MediaQuery.of(context).size.width * 0.15,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: FileImage(File(picture.path)),
+                                fit: BoxFit.fill
+                            ),
+                          ),
+                          child: const Text(""),
+                        );
+                      }).toList(),
+                    ),
 
 
                     ///Business hours selection
@@ -1554,7 +1880,6 @@ class _AddBusinessState extends State<AddBusiness> {
                         //color: colors[2],
                         onPressed: (){
                           // ///Set Nav
-                          // setGroupNav(subCategory);
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
                           registerFormKey.currentState!.validate()
                               ? onRegisterBusinessPress()

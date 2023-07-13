@@ -24,7 +24,7 @@ class HomeCare extends StatefulWidget {
 
 class _HomeCareState extends State<HomeCare> {
   ///Variables
-  late String name, description, ageRestr, price, rate = rates[0], speciality = specialities[0];
+  late String name, description, ageRestr, price = prices[0], rate = rates[0], speciality = specialities[0];
   List<DocumentSnapshot> amenities = [];
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
@@ -49,7 +49,7 @@ class _HomeCareState extends State<HomeCare> {
         await FilePicker.platform.pickFiles(
             allowMultiple: true,
             type: FileType.image,
-            dialogTitle: "Please select room pictures."
+            dialogTitle: "Please select pictures."
         ))?.files;
 
     if(images != null && images.length != 0){
@@ -71,7 +71,7 @@ class _HomeCareState extends State<HomeCare> {
     prefs = await SharedPreferences.getInstance();
 
     ///File Name on Firebase storage
-    String fileName = name + 'pr-home' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
+    String fileName = name + 'pr-comm' + DateFormat('ddMMMMyyyyhhmmss').format(DateTime.now()).toString();
 
     ///Create storage reference and upload image
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
@@ -173,9 +173,12 @@ class _HomeCareState extends State<HomeCare> {
       'id': docRef.id,
       'name': name,
       'description': description,
-      'price': '$price/$rate',
-      'speciality': speciality,
+      'price': '$price',
+      //'speciality': speciality,
       'businessID': widget.bizID,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 
@@ -223,6 +226,7 @@ class _HomeCareState extends State<HomeCare> {
 
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -230,7 +234,7 @@ class _HomeCareState extends State<HomeCare> {
         backgroundColor: getColor('white', 1.0),
         ///AppBar Title
         centerTitle: true,
-        title: Text("Add Home Care Listing",
+        title: Text("Add Community Product Listing",
             textAlign: TextAlign.center,
             style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 18, ))
         ),
@@ -363,9 +367,15 @@ class _HomeCareState extends State<HomeCare> {
               ),
 
               ///Price Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Price: "),
+                  priceTypeDropDown(),
+                ],
+              ),
 
-
-              Center(
+             /* Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -412,13 +422,13 @@ class _HomeCareState extends State<HomeCare> {
                         ),
                       ),
                     ),
-                    ratesDropDown(),
+                    //ratesDropDown(),
                   ],
                 ),
-              ),
+              ),*/
 
               ///Restaurant type Selection
-              Center(
+              /*Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -429,7 +439,7 @@ class _HomeCareState extends State<HomeCare> {
                     restTypesDropDown(),
                   ],
                 ),
-              ),
+              ),*/
 
               ///Submit Button
               Padding(

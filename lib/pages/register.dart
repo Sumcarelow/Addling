@@ -10,11 +10,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../extras/data.dart';
 import '../extras/variables.dart';
+import 'address_search/address_searching.dart';
+import 'address_search/places.dart';
 import 'home.dart';
 import 'dart:io';
 import '../extras/colors.dart';
@@ -45,6 +48,11 @@ class _RegisterState extends State<Register> {
   final FocusNode focusNodePhone= FocusNode();
   final FocusNode focusNodeAddress = FocusNode();
 
+  final _controller = TextEditingController();
+  String _streetNumber = '';
+  String _street = '';
+  String _city = '';
+  String _zipCode = '';
 
   ///Toggle show password
   bool showPassword = false;
@@ -199,7 +207,7 @@ class _RegisterState extends State<Register> {
               Center(
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.2,
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.width * 0.4,
                   decoration: BoxDecoration(
                       image: DecorationImage(
                           image: AssetImage('assets/images/logo2.png'),
@@ -210,7 +218,9 @@ class _RegisterState extends State<Register> {
               ),
               Text("Personal\nInformation",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0), fontSize: 28, ))
+                  style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 1.0),
+                    fontSize: 25,
+                  ))
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.08,
@@ -229,7 +239,7 @@ class _RegisterState extends State<Register> {
                             autocorrect: false,
                             cursorColor: Colors.grey,
                             style: TextStyle(
-                                color: Colors.grey
+                                color: Colors.grey,
                             ),
                             decoration: InputDecoration(
 
@@ -241,7 +251,10 @@ class _RegisterState extends State<Register> {
                               labelStyle: TextStyle(color: Colors.grey),
                               hintText: 'First Name',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
 
                             ),
                             controller: nameController,
@@ -280,7 +293,10 @@ class _RegisterState extends State<Register> {
                               labelStyle: TextStyle(color: Colors.grey),
                               hintText: 'Last Name',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
 
                             ),
                             controller: lastNameController,
@@ -318,7 +334,10 @@ class _RegisterState extends State<Register> {
                               labelStyle: TextStyle(color: getColor('green', 1.0),),
                               hintText: 'Email',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
 
                             ),
                             controller: emailController,
@@ -352,7 +371,10 @@ class _RegisterState extends State<Register> {
                             decoration: InputDecoration(
                               hintText: 'Phone',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
                             ),
                             controller: phoneController,
                             validator: (value) {
@@ -373,15 +395,41 @@ class _RegisterState extends State<Register> {
                       ///Address
                       Container(
                         child: Theme(
-                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey,),
                           child: TextFormField(
                             style: TextStyle(
                                 color: Colors.grey
                             ),
+                            readOnly: true,
+                            onTap: () async {
+                              final sessionToken = Uuid().v4();
+                              final Suggestion? result = await showSearch(
+                                context: context,
+                                delegate: AddressSearch(),
+                              );
+                              if (result != null) {
+                                final placeDetails = await PlaceApiProvider(sessionToken)
+                                    .getPlaceDetailFromId(result.placeId);
+                                //print("Here I am ........... ${result.placeId}");
+
+                                setState(() {
+                                  addressController.text = result.description;
+                                  address = result.description;
+                                  _streetNumber = placeDetails.streetNumber;
+                                  _street = placeDetails.street;
+                                  _city = placeDetails.city;
+                                  _zipCode = placeDetails.zipCode;
+                                });
+                              }
+                              // placeholder for our places search later
+                            },
                             decoration: InputDecoration(
                               hintText: 'Home Address',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
 
                             ),
                             controller: addressController,
@@ -419,7 +467,9 @@ class _RegisterState extends State<Register> {
                               labelStyle: TextStyle(color: getColor('green', 1.0),),
                               hintText: 'Password',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold),
 
                             ),
                             controller: passwordController,
@@ -458,7 +508,10 @@ class _RegisterState extends State<Register> {
                               labelStyle: TextStyle(color: getColor('green', 1.0),),
                               hintText: 'Confirm Password',
                               contentPadding: EdgeInsets.all(5.0),
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: Colors.grey,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
 
                             ),
                             controller: passwordVerifyController,

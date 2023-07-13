@@ -19,7 +19,7 @@ late String dateTime;
 
 TimeOfDay selectedTime = const TimeOfDay(hour: 00, minute: 00);
 
-late String mondayOpen, mondayClose;
+String mondayOpen = '', mondayClose = '';
 TextEditingController mondayOpenController = TextEditingController();
 TextEditingController mondayCloseController = TextEditingController();
 FocusNode focusNodeMondayOpen = FocusNode();
@@ -27,37 +27,39 @@ FocusNode focusNodeMondayClose = FocusNode();
 TimeOfDay selectedTimeMonOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeMonClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String tuesdayOpen, tuesdayClose;
+ String tuesdayOpen = '', tuesdayClose = '';
 TextEditingController tuesdayOpenController = TextEditingController();
 TextEditingController tuesdayCloseController = TextEditingController();
 TimeOfDay selectedTimeTuesOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeTuesClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String wedOpen, wedClose;
+ String wedOpen = '', wedClose = '';
 TextEditingController wedOpenController = TextEditingController();
 TextEditingController wedCloseController = TextEditingController();
 TimeOfDay selectedTimeWedOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeWedClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String thursOpen, thursClose;
+ String thursOpen = '', thursClose = '';
 TextEditingController thursdayOpenController = TextEditingController();
 TextEditingController thursdayCloseController = TextEditingController();
 TimeOfDay selectedTimeThurOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeThurClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String friOpen, friClose;
+ String friOpen = '', friClose = '';
 TextEditingController fridayOpenController = TextEditingController();
 TextEditingController fridayCloseController = TextEditingController();
 TimeOfDay selectedTimeFriOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeFriClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String satOpen, satClose;
+
+ String satOpen = '', satClose = '';
 TextEditingController saturdayOpenController = TextEditingController();
 TextEditingController saturdayCloseController = TextEditingController();
 TimeOfDay selectedTimeSatOpen = const TimeOfDay(hour: 00, minute: 00);
 TimeOfDay selectedTimeSatClose = const TimeOfDay(hour: 00, minute: 00);
 
-late String sundayOpen, sundayClose;
+
+ String sundayOpen = '', sundayClose = '';
 TextEditingController sundayOpenController = TextEditingController();
 TextEditingController sundayCloseController = TextEditingController();
 TimeOfDay selectedTimeSunOpen = const TimeOfDay(hour: 00, minute: 00);
@@ -169,3 +171,5 @@ Future<String> selectTime(BuildContext context, String day, String kind, TextEdi
   return Tcontrol.text;
 
 }
+
+

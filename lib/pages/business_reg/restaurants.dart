@@ -34,7 +34,7 @@ class _RestaurantState extends State<Restaurant> {
   final TextEditingController descrController = TextEditingController();
 
   final FocusNode focusNodeUserDescr = FocusNode();
-  late String name, description, restType = rests[0];
+  late String id, name, description, restType = rests[0];
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   ///Shared Preferences instance
@@ -58,6 +58,7 @@ class _RestaurantState extends State<Restaurant> {
 
   ///Get amenities list from Firebase
   void getAmenities() async{
+    print("I am herre");
     final QuerySnapshot result =
     await FirebaseFirestore.instance.collection('amenities').doc('9CS2DCN4zN9kycbxYMmv').collection('amenities').get();
     final List<DocumentSnapshot> documents = result.docs;
@@ -185,12 +186,21 @@ class _RestaurantState extends State<Restaurant> {
 
 
 
+  ///load Local Storage Info
+  void loadData() async{
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      id = prefs.getString('id') ?? '';
+    });
+  }
+
   ///Initial state
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getAmenities();
+    loadData();
     this.setState(() {
 
     });

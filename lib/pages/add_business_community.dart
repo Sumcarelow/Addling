@@ -1,14 +1,6 @@
 ///Page to add business under business community section
 import 'package:adlinc/extras/data.dart';
-import 'package:adlinc/pages/business_reg/bicycle.dart';
-import 'package:adlinc/pages/business_reg/car_rental.dart';
-import 'package:adlinc/pages/business_reg/fun_and_games.dart';
-import 'package:adlinc/pages/business_reg/healthcare.dart';
 import 'package:adlinc/pages/business_reg/home_care.dart';
-import 'package:adlinc/pages/business_reg/motocycle.dart';
-import 'package:adlinc/pages/business_reg/restaurants.dart';
-import 'package:adlinc/pages/business_reg/self_love.dart';
-import 'package:adlinc/pages/business_reg/shuttle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
@@ -24,8 +16,11 @@ import '../extras/functions.dart';
 import '../extras/variables.dart';
 import 'dart:io';
 import '../extras/colors.dart';
+import 'address_search/address_searching.dart';
+import 'address_search/places.dart';
 import 'business_reg/accomodation.dart';
 import 'home.dart';
+import 'package:uuid/uuid.dart';
 
 class AddBusinessComminity extends StatefulWidget {
   const AddBusinessComminity({Key? key}) : super(key: key);
@@ -283,6 +278,19 @@ class _AddBusinessComminityState extends State<AddBusinessComminity> {
       'category': category,
       'logo': logo,
       'status': 'pending',
+      'type': 'community',
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'operationTimes': {
+        'Monday': '${mondayOpenController.text} - ${mondayCloseController.text}',
+        'Tuesday': '${tuesdayOpenController.text} - ${tuesdayCloseController.text}',
+        'Wednesday': '${wedOpenController.text} - ${wedCloseController.text}',
+        'Thursday': '${thursdayOpenController.text} - ${thursdayCloseController.text}',
+        'Friday': '${fridayOpenController.text} - ${fridayCloseController.text}',
+        'Saturday': '${saturdayOpenController.text} - ${saturdayCloseController.text}',
+        'Sunday': '${sundayOpenController.text} - ${sundayCloseController.text}'
+      },
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 
@@ -296,7 +304,7 @@ class _AddBusinessComminityState extends State<AddBusinessComminity> {
       });
 
       ///Set Nav
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeCare(bizID: docRef.id, group: category)));
 
     });
   }
@@ -526,6 +534,29 @@ class _AddBusinessComminityState extends State<AddBusinessComminity> {
                                 style: const TextStyle(
                                     color: Colors.grey
                                 ),
+                                readOnly: true,
+                                onTap: () async {
+                                  final sessionToken = Uuid().v4();
+                                  final Suggestion? result = await showSearch(
+                                    context: context,
+                                    delegate: AddressSearch(),
+                                  );
+                                  if (result != null) {
+                                    final placeDetails = await PlaceApiProvider(sessionToken)
+                                        .getPlaceDetailFromId(result.placeId);
+                                    //print("Here I am ........... ${result.placeId}");
+
+                                    setState(() {
+                                      addressController.text = result.description;
+                                      address = result.description;
+                                      // _streetNumber = placeDetails.streetNumber;
+                                      //_street = placeDetails.street;
+                                      //_city = placeDetails.city;
+                                      //_zipCode = placeDetails.zipCode;
+                                    });
+                                  }
+                                  // placeholder for our places search later
+                                },
                                 decoration: const InputDecoration(
                                   hintText: 'Business Address',
                                   contentPadding: EdgeInsets.all(5.0),

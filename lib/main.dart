@@ -1,15 +1,4 @@
-import 'package:adlinc/pages/add_business.dart';
-import 'package:adlinc/pages/business_reg/accomodation.dart';
-import 'package:adlinc/pages/business_reg/bicycle.dart';
-import 'package:adlinc/pages/business_reg/car_rental.dart';
-import 'package:adlinc/pages/business_reg/fun_and_games.dart';
 import 'package:adlinc/pages/business_reg/healthcare.dart';
-import 'package:adlinc/pages/business_reg/home_care.dart';
-import 'package:adlinc/pages/business_reg/motocycle.dart';
-import 'package:adlinc/pages/business_reg/rest_menu.dart';
-import 'package:adlinc/pages/business_reg/restaurants.dart';
-import 'package:adlinc/pages/business_reg/self_love.dart';
-import 'package:adlinc/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +9,7 @@ import 'extras/data.dart';
 void main() async{
 WidgetsFlutterBinding.ensureInitialized();
 await Firebase.initializeApp();
-runApp(const MyApp());
+runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -49,12 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    for(int i = 1; i <= 50000; i++){
-      this.setState(() {
-        prices.add(i.toString());
 
-      });
-    }
   }
 
   @override
@@ -70,10 +54,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ///Logo section
             Container(
               height: MediaQuery.of(context).size.height * 0.2,
-              width: MediaQuery.of(context).size.width * 0.6,
+              width: MediaQuery.of(context).size.width * 0.4,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/logo.png'),
+                  image: AssetImage('assets/images/logo2.png'),
                   fit: BoxFit.cover
                 )
               ),
@@ -82,7 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ///Welcome Message
             Text(
               'Hello and welcome to \n ADLINC Community.',
-                style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold))
+                style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.black, fontSize: 20,))
+            ),
+
+            ///Spacer
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.07,
             ),
 
             ///Create Account Button
@@ -95,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const Register()));
                 },
                 child: Text("CREATE ACCOUNT",
-                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))
+                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Colors.white, fontSize: 18,))
                 )
             ),
 
@@ -105,7 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   foregroundColor:  MaterialStatePropertyAll<Color>(Color.fromRGBO(12, 106, 187, 1.0)),
                 ),
                 onPressed: (){
-
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
                 },
                 child: Padding(
@@ -116,10 +104,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                     child:Text(
                   "LOGIN",
-                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(12, 106, 187, 1.0), fontSize: 13, fontWeight: FontWeight.bold))
+                    style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(12, 106, 187, 1.0), fontSize: 18,))
                 ))
 
             ),
+
+            ///Bottom
+
           ],
         ),
       ),

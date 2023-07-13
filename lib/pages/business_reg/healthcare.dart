@@ -24,9 +24,8 @@ class Healthcare extends StatefulWidget {
 
 class _HealthcareState extends State<Healthcare> {
   ///Variables
-  late String name, description, ageRestr, consultationFee, payment = payments[0];
-  List<DocumentSnapshot> amenities = [];
-  List<DocumentSnapshot> myAmenities = [];
+  late String id, name, description, ageRestr, consultationFee = prices[0], payment = payments[0];
+  List<String> paymentMethods = [];
   List<dynamic> productPictures = [];
   bool isCash = false, isMedicalAid = false, isDigital = false;
 
@@ -40,6 +39,8 @@ class _HealthcareState extends State<Healthcare> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descrController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
+
+
   ///Shared Preferences instance
   late SharedPreferences prefs;
 
@@ -108,6 +109,11 @@ class _HealthcareState extends State<Healthcare> {
                   value: getPaymentBool(items),
                   onChanged: (bool? value){
                     setState(() {
+                      if(paymentMethods.contains(items)){
+                        paymentMethods.remove(items);
+                      } else {
+                        paymentMethods.add(items);
+                      }
                       setCheckBoxValue(items);
                     });
                   }
@@ -122,6 +128,15 @@ class _HealthcareState extends State<Healthcare> {
       // After selecting the desired option,it will
       // change button value to selected value
       onChanged: (String? newValue) {
+        if(paymentMethods.contains(newValue)){
+          setState(() {
+            paymentMethods.remove(newValue);
+          });
+        } else {
+          setState(() {
+            paymentMethods.add(newValue!);
+          });
+        }
         setState(() {
           payment = newValue!;
         });
@@ -138,8 +153,13 @@ class _HealthcareState extends State<Healthcare> {
       'name': name,
       'description': description,
       'consultationFee': consultationFee,
-      'payment': payment,
+      'payment': paymentMethods,
+      'price': consultationFee,
       'businessID': widget.bizID,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'ownerID': id,
       'dateRegistered': "${DateFormat('dd MMMM yyyy').format(DateTime.now())} ${DateFormat('hh:mm:ss').format(DateTime.now())}",
     }).then((value) async {
 
@@ -157,7 +177,6 @@ class _HealthcareState extends State<Healthcare> {
 
     });
   }
-
 
   ///Upload Profile Image to firebase storage
   Future uploadProfilePicture(File image, String docID, String name) async {
@@ -237,6 +256,20 @@ class _HealthcareState extends State<Healthcare> {
     );
   }
 
+  ///load Local Storage Info
+  void loadData() async{
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      id = prefs.getString('id') ?? '';
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +290,7 @@ class _HealthcareState extends State<Healthcare> {
       ),
 
       ///Page Body
-      body: Container(
+      body: SingleChildScrollView(
         child: Form(
           key: formKey,
           child: Column(
@@ -384,50 +417,8 @@ class _HealthcareState extends State<Healthcare> {
                   priceTypeDropDown(),
                 ],
               ),
-              /*Center(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                    child: TextFormField(keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      autocorrect: false,
-                      cursorColor: Colors.grey,
-                      style: const TextStyle(
-                          color: Colors.grey
-                      ),
-                      decoration: const InputDecoration(
 
-                        disabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5))
-                        ),
-                        focusColor: Colors.grey,
-                        fillColor: Colors.grey,
-                        labelStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Consultation Fee',
-                        contentPadding: EdgeInsets.all(5.0),
-                        hintStyle: TextStyle(color: Colors.grey),
-
-                      ),
-                      controller: priceController,
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please enter your Listing Price';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        consultationFee = value;
-                      },
-                      focusNode: focusNodeUserPrice,
-                    ),
-                  ),
-                ),
-              ),*/
-
-              ///Restaurant type Selection
+              ///Accepted Payment Methods
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -449,7 +440,7 @@ class _HealthcareState extends State<Healthcare> {
                     onPressed: (){
                       formKey.currentState!.validate() && productPictures.isNotEmpty
                           ? postData()
-                          : null;
+                          : Fluttertoast.showToast(msg: "Please fill out all information");
                     },
                     style: ButtonStyle(
                       backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),

@@ -59,6 +59,13 @@ dependencies:
   webview_flutter: ^3.0.4
   firebase_core_platform_interface: 4.5.1
   date_format: ^2.0.7
+  url_launcher: ^6.0.20
+  equatable: ^2.0.3
+  country_code_picker: ^2.0.2
+  provider: ^6.0.2
+  qr_flutter: ^4.1.0
+  flutter_google_places: ^0.3.0
+  #firebase_messaging: ^9.1.3
 
 dev_dependencies:
   flutter_test:

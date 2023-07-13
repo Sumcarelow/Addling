@@ -23,7 +23,7 @@ class FunAndGames extends StatefulWidget {
 
 class _FunAndGamesState extends State<FunAndGames> {
   ///Variables
-  late String name, description, ageRestr, price;
+  late String name, id, description, ageRestr, price = prices[0];
   List<DocumentSnapshot> amenities = [];
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
@@ -160,6 +160,10 @@ class _FunAndGamesState extends State<FunAndGames> {
       'price': price,
       'age': ageRestr,
       'businessID': widget.bizID,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'ownerID': id,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
 
@@ -168,13 +172,11 @@ class _FunAndGamesState extends State<FunAndGames> {
         uploadProfilePicture(File(element.path), docRef.id, name);
       });
 
-      Fluttertoast.showToast(msg: "Listing created Successfully");
+      Fluttertoast.showToast(msg: "Listing created Successfully.");
 
       ///Upload Amenities List
       uploadAmenities(docRef.id);
-
-
-
+      
       ///Navigate to Home Page
       Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
 
@@ -198,7 +200,17 @@ class _FunAndGamesState extends State<FunAndGames> {
     }
   }
 
+  ///Load Local Saved Data to page
+  void readLocal() async{
+    setState((){
+      isLoading = false;
+    });
+    prefs = await SharedPreferences.getInstance();
+    id = prefs.getString('id') ?? '';
+    setState(() {
 
+    });
+  }
 
   ///Initial state
   @override
@@ -206,9 +218,8 @@ class _FunAndGamesState extends State<FunAndGames> {
     // TODO: implement initState
     super.initState();
     getAmenities();
-    this.setState(() {
+    readLocal();
 
-    });
   }
 
   @override
@@ -382,7 +393,10 @@ class _FunAndGamesState extends State<FunAndGames> {
                             return null;
                           },
                           onChanged: (value) {
-                            ageRestr = value;
+                            setState(() {
+                              ageRestr = value;
+                            });
+
                           },
                           focusNode: focusNodeAgeRestr,
                         ),
@@ -399,44 +413,6 @@ class _FunAndGamesState extends State<FunAndGames> {
                         priceTypeDropDown(),
                       ],
                     ),
-                    /*Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                        child: TextFormField(
-                          autocorrect: false,
-                          cursorColor: Colors.grey,
-                          style: const TextStyle(
-                              color: Colors.grey
-                          ),
-                          decoration: const InputDecoration(
-
-                            disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5))
-                            ),
-                            focusColor: Colors.grey,
-                            fillColor: Colors.grey,
-                            labelStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Price',
-                            contentPadding: EdgeInsets.all(5.0),
-                            hintStyle: TextStyle(color: Colors.grey),
-
-                          ),
-                          controller: priceController,
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please enter your Listing Price';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            price = value;
-                          },
-                          focusNode: focusNodeUserPrice,
-                        ),
-                      ),
-                    ),*/
-
 
                     ///Amenities
                     Padding(

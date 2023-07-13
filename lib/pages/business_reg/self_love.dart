@@ -14,29 +14,26 @@ import '../../extras/variables.dart';
 import 'dart:io';
 import '../home.dart';
 
-
-
 class SelfLove extends StatefulWidget {
   final String group, bizID;
-  const SelfLove({Key? key, required this.group, required this.bizID}) : super(key: key);
+   SelfLove({Key? key, required this.group, required this.bizID}) : super(key: key);
 
   @override
   State<SelfLove> createState() => _SelfLoveState();
 }
 
 class _SelfLoveState extends State<SelfLove> {
+
   ///Variables
-  late String name, description, ageRestr, price, mobile = optionsYN[0];
+  late String id, name, description, price = prices[0], mobile = optionsYN[0];
   List<DocumentSnapshot> amenities = [];
   List<DocumentSnapshot> myAmenities = [];
   List<dynamic> productPictures = [];
-
 
   final FocusNode focusNodeUserName= FocusNode();
   final FocusNode focusNodeUserDescr = FocusNode();
   final FocusNode focusNodeUserPrice = FocusNode();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descrController = TextEditingController();
@@ -46,17 +43,18 @@ class _SelfLoveState extends State<SelfLove> {
 
   ///Get amenities list from Firebase
   void getAmenities() async{
+    //print("STarted pilling");
     final QuerySnapshot result =
     await FirebaseFirestore.instance.collection('amenities').doc('bGNuXNBvc7joFX9Nnfl2').collection('amenities').get();
+    //print("Done pulling");
     final List<DocumentSnapshot> documents = result.docs;
 
-    if(documents.isEmpty){
-      this.setState(() {
+    if(documents.length == 0){
+      setState(() {
         amenities = [];
       });
     } else{
-
-      this.setState(() {
+      setState(() {
         amenities = documents;
       });
     }
@@ -74,6 +72,9 @@ class _SelfLoveState extends State<SelfLove> {
     if(images != null && images.length != 0){
       setState(() {
         productPictures = images;
+      });///Upload Product Pictures
+      productPictures.forEach((element) {
+        uploadProfilePicture(File(element.path), 'prImage', name);
       });
     }
   }
@@ -157,7 +158,17 @@ class _SelfLoveState extends State<SelfLove> {
       },
     );
   }
-
+  ///Upload Amenities Information
+  void uploadAmenities(String roomID) async{
+    ///Go through Beds List and add each bed to room
+    myAmenities.forEach((amenity) {
+      DocumentReference docRef = FirebaseFirestore.instance.collection('listings').doc(roomID).collection('amenities').doc();
+      docRef.set({
+        'id': docRef.id,
+        'name': amenity['name'],
+      });
+    });
+  }
   ///Post data to Firebase
   void postData() async{
     ///Add new user to Firebase
@@ -168,17 +179,22 @@ class _SelfLoveState extends State<SelfLove> {
       'description': description,
       'price': price,
       'businessID': widget.bizID,
+      'favourites': 0,
+      'comments': 0,
+      'rating': 0,
+      'ownerID': id,
+      'mobile': mobile,
       'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
     }).then((value) async {
-
       ///Upload Product Pictures
       productPictures.forEach((element) {
         uploadProfilePicture(File(element.path), docRef.id, name);
       });
 
+      ///Upload Amenities List
+      uploadAmenities(docRef.id);
+
       Fluttertoast.showToast(msg: "Listing created Successfully");
-
-
 
       ///Navigate to Home Page
       Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
@@ -213,22 +229,21 @@ class _SelfLoveState extends State<SelfLove> {
     );
   }
 
+  ///load Local Storage Info
+  void loadData() async{
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      id = prefs.getString('id') ?? '';
+    });
+  }
 
-  ///Initial state
+  ///Initial State
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getAmenities();
-    for(int i = 1; i <= 50000; i++){
-      this.setState(() {
-        prices.add(i.toString());
-
-      });
-    }
-    this.setState(() {
-
-    });
+    loadData();
   }
 
   @override
@@ -250,251 +265,215 @@ class _SelfLoveState extends State<SelfLove> {
       ),
 
       ///Page Body
-      body: Container(
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.05,
-              ),
-              ///Product Images
-              productPictures.isEmpty
-                  ? GestureDetector(
-                onTap: getImage,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.camera_alt,
-                    ),
-                    const Text('Upload Images')
-                  ],
-                ),
-              )
-                  : Wrap(
-                spacing: MediaQuery.of(context).size.width * 0.05,
-                children: productPictures.map((picture) {
-                  return Container(
-                    height: MediaQuery.of(context).size.height * 0.08,
-                    width: MediaQuery.of(context).size.width * 0.15,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: FileImage(File(picture.path)),
-                          fit: BoxFit.fill
-                      ),
-                    ),
-                    child: const Text(""),
-                  );
-                }).toList(),
-              ),
-
-
-              ///Product Name
-              Container(
-                margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                child: Theme(
-                  data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                  child: TextFormField(
-                    autocorrect: false,
-                    cursorColor: Colors.grey,
-                    style: const TextStyle(
-                        color: Colors.grey
-                    ),
-                    decoration: const InputDecoration(
-
-                      disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5))
-                      ),
-                      focusColor: Colors.grey,
-                      fillColor: Colors.grey,
-                      labelStyle: TextStyle(color: Colors.grey),
-                      hintText: 'Name',
-                      contentPadding: EdgeInsets.all(5.0),
-                      hintStyle: TextStyle(color: Colors.grey),
-
-                    ),
-                    controller: nameController,
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please enter your Product Name';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      name = value;
-                    },
-                    focusNode: focusNodeUserName,
-                  ),
-                ),
-              ),
-
-              ///Product Description
-              Container(
-                margin: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 20.0),
-                child: Theme(
-                  data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                  child: TextFormField(
-                    autocorrect: false,
-                    cursorColor: Colors.grey,
-                    style: const TextStyle(
-                        color: Colors.grey
-                    ),
-                    decoration: const InputDecoration(
-
-                      disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5))
-                      ),
-                      focusColor: Colors.grey,
-                      fillColor: Colors.grey,
-                      labelStyle: TextStyle(color: Colors.grey),
-                      hintText: 'Description',
-                      contentPadding: EdgeInsets.all(5.0),
-                      hintStyle: TextStyle(color: Colors.grey),
-
-                    ),
-                    controller: descrController,
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please enter your listing description';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      description = value;
-                    },
-                    focusNode: focusNodeUserDescr,
-                  ),
-                ),
-              ),
-
-
-              ///product price
-              Row(
+      body: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
+            ),
+            ///Product Images
+            productPictures.isEmpty
+                ? GestureDetector(
+              onTap: getImage,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Price: "),
-                  priceTypeDropDown(),
+                  const Icon(
+                    Icons.camera_alt,
+                  ),
+                  const Text('Upload Images')
                 ],
               ),
-             /* Container(
-                margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                child: Theme(
-                  data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                  child: TextFormField(
-                    autocorrect: false,
-                    cursorColor: Colors.grey,
-                    style: const TextStyle(
-                        color: Colors.grey
+            )
+                : Wrap(
+              spacing: MediaQuery.of(context).size.width * 0.05,
+              children: productPictures.map((picture) {
+                return Container(
+                  height: MediaQuery.of(context).size.height * 0.08,
+                  width: MediaQuery.of(context).size.width * 0.15,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: FileImage(File(picture.path)),
+                        fit: BoxFit.fill
                     ),
-                    decoration: const InputDecoration(
-
-                      disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5))
-                      ),
-                      focusColor: Colors.grey,
-                      fillColor: Colors.grey,
-                      labelStyle: TextStyle(color: Colors.grey),
-                      hintText: 'Price',
-                      contentPadding: EdgeInsets.all(5.0),
-                      hintStyle: TextStyle(color: Colors.grey),
-
-                    ),
-                    controller: priceController,
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please enter your Listing Price';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      price = value;
-                    },
-                    focusNode: focusNodeUserPrice,
                   ),
-                ),
-              ),*/
+                  child: const Text(""),
+                );
+              }).toList(),
+            ),
 
-              ///Restaurant type Selection
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Mobile Service?",
-                        style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(0, 0, 0, 1.0), fontSize: 16, fontWeight: FontWeight.bold))
+
+            ///Product Name
+            Container(
+              margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+              child: Theme(
+                data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                child: TextFormField(
+                  autocorrect: false,
+                  cursorColor: Colors.grey,
+                  style: const TextStyle(
+                      color: Colors.grey
+                  ),
+                  decoration: const InputDecoration(
+
+                    disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    restTypesDropDown(),
-                  ],
+                    focusColor: Colors.grey,
+                    fillColor: Colors.grey,
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: 'Name',
+                    contentPadding: EdgeInsets.all(5.0),
+                    hintStyle: TextStyle(color: Colors.grey),
+
+                  ),
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please enter your Product Name';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    name = value;
+                  },
+                  focusNode: focusNodeUserName,
                 ),
               ),
+            ),
 
-              ///Amenities section
-              Expanded(
-                child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 100,
-                        childAspectRatio: 4 / 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 20
+            ///Product Description
+            Container(
+              margin: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 20.0),
+              child: Theme(
+                data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                child: TextFormField(
+                  autocorrect: false,
+                  cursorColor: Colors.grey,
+                  style: const TextStyle(
+                      color: Colors.grey
+                  ),
+                  decoration: const InputDecoration(
+
+                    disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    itemCount: amenities.length,
-                    itemBuilder: (BuildContext ctx, index) {
-                      return GestureDetector(
-                        onTap: (){
-                          if(
-                          myAmenities.contains(amenities[index])){
-                            setState(() {
-                              myAmenities.remove(amenities[index]);
-                            });
-                          } else {
-                            setState(() {
-                              myAmenities.add(amenities[index]);
-                            });
-                          }
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: myAmenities.contains(amenities[index])? Colors.green : Colors.grey,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Text(amenities[index]["name"],
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(255, 255, 255, 1.0), fontSize: 8,))
-                            ),
+                    focusColor: Colors.grey,
+                    fillColor: Colors.grey,
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: 'Description',
+                    contentPadding: EdgeInsets.all(5.0),
+                    hintStyle: TextStyle(color: Colors.grey),
+
+                  ),
+                  controller: descrController,
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please enter your listing description';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    description = value;
+                  },
+                  focusNode: focusNodeUserDescr,
+                ),
+              ),
+            ),
+
+
+            ///product price
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+               const Text("Price: "),
+                priceTypeDropDown(),
+              ],
+            ),
+
+            ///Restaurant type Selection
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Mobile Service?",
+                      style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(0, 0, 0, 1.0), fontSize: 16, fontWeight: FontWeight.bold))
+                  ),
+                  restTypesDropDown(),
+                ],
+              ),
+            ),
+
+            ///Amenities section
+            amenities.isEmpty
+            ? Container()
+            :
+            Expanded(
+              child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 100,
+                      childAspectRatio: 4 / 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 20
+                  ),
+                  itemCount: amenities.length,
+                  itemBuilder: (BuildContext ctx, index) {
+                    return GestureDetector(
+                      onTap: (){
+                        if(
+                        myAmenities.contains(amenities[index])){
+                          setState(() {
+                            myAmenities.remove(amenities[index]);
+                          });
+                        } else {
+                          setState(() {
+                            myAmenities.add(amenities[index]);
+                          });
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: myAmenities.contains(amenities[index])? Colors.green : Colors.grey,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Text(amenities[index]["name"],
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.getFont('Roboto', textStyle: const TextStyle(color: Color.fromRGBO(255, 255, 255, 1.0), fontSize: 8,))
                           ),
                         ),
-                      );
-                    }),
-              ),
+                      ),
+                    );
+                  }),
+            ),
 
 
-              ///Submit Button
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: (){
-                      formKey.currentState!.validate() && productPictures.isNotEmpty
-                          ? postData()
-                          : null;
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
-                    ),
-                    child: const Text("Add Self Love Listing"),
+            ///Submit Button
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: (){
+                    formKey.currentState!.validate() && productPictures.isNotEmpty
+                        ? postData()
+                        : null;
+                  },
+                  style: ButtonStyle(
+                    backgroundColor:  MaterialStatePropertyAll<Color>(getColor('green', 1.0),),
                   ),
+                  child: const Text("Add Self Love Listing"),
                 ),
-              )
+              ),
+            )
 
-            ],
-
-          ),
+          ],
 
         ),
+
       ),
     );
   }

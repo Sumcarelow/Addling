@@ -102,7 +102,7 @@ class _LoginState extends State<Login> {
                         Center(
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.2,
-                            width: MediaQuery.of(context).size.width * 0.6,
+                            width: MediaQuery.of(context).size.width * 0.4,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image: AssetImage('assets/images/logo2.png'),
@@ -132,7 +132,9 @@ class _LoginState extends State<Login> {
                                         autocorrect: false,
                                         cursorColor: getColor("orange", 1.0),
                                         style: TextStyle(
-                                            color: Colors.grey
+                                            color: Colors.grey,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold
                                         ),
                                         decoration: InputDecoration(
 
@@ -144,7 +146,10 @@ class _LoginState extends State<Login> {
                                           labelStyle: TextStyle(color: getColor("green", 1.0)),
                                           hintText: 'E-mail Address',
                                           contentPadding: EdgeInsets.all(5.0),
-                                          hintStyle: TextStyle(color: Colors.grey),
+                                          hintStyle: TextStyle(color: Colors.grey,
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold
+                                          ),
 
                                         ),
                                         controller: emailController,
@@ -171,7 +176,9 @@ class _LoginState extends State<Login> {
                                         autocorrect: false,
                                         cursorColor: getColor("green", 1.0),
                                         style: TextStyle(
-                                            color: Colors.grey
+                                            color: Colors.grey,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold
                                         ),
                                         decoration: InputDecoration(
 
@@ -211,7 +218,7 @@ class _LoginState extends State<Login> {
                                           showPassword = !showPassword;
                                         });
                                       }),
-                                      Text( showPassword ? "Hide Passwords" : "Show Passwords")
+                                      Text( showPassword ? "Hide Password" : "Show Password")
                                     ],
                                   ),
 

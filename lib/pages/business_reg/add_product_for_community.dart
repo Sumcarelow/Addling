@@ -13,6 +13,22 @@ class AddProductToCommunity extends StatefulWidget {
 class _AddProductToCommunityState extends State<AddProductToCommunity> {
   @override
   Widget build(BuildContext context) {
+
+    ///Variables
+    late String name, description, price;
+
+    ///Form Controls
+    final FocusNode focusNodeUserName= FocusNode();
+    final FocusNode focusNodeUserDescr = FocusNode();
+    final FocusNode focusNodeUserPrice = FocusNode();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController descrController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+
+
     return Material(
       child: Stack(
         children: [

@@ -28,7 +28,7 @@ class Bicycle extends StatefulWidget {
 class _BicycleState extends State<Bicycle> {
 
   ///Variables
-  late String name, description, price, monthlyPrice, addressPickUp, addressDropOff, extraPrice, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
+  late String name, description, price = prices[0], monthlyPrice, addressPickUp, addressDropOff, extraPrice, pickUpCharge, dropOffCharge, deposit, productPic = logoURL, beds, sizes;
   List<dynamic> productPictures = [];
   List<MyLocation> pickUps = [];
   List<MyLocation> dropOffs = [];
