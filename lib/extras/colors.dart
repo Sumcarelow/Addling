@@ -47,6 +47,46 @@ List<color> colors = [
     opacity: 1.0,
     code: [0, 0, 0]
   ),
+  color(
+    name: "purple",
+    opacity: 1.0,
+    code: [245, 212, 254]
+  ),
+  color(
+    name: "purpleIcon",
+    opacity: 1.0,
+    code: [161, 0, 205]
+  ),
+  color(
+    name: "greenFunds",
+    opacity: 1.0,
+    code: [212, 254, 234]
+  ),
+  color(
+    name: "greenFundsLight",
+    opacity: 1.0,
+    code: [0, 218, 113]
+  ),
+  color(
+    name: "cardBlue",
+    opacity: 1.0,
+    code: [48, 168, 255]
+  ),
+  color(
+    name: "cardBlueLight",
+    opacity: 1.0,
+    code: [211, 235, 243]
+  ),
+  color(
+    name: "cardYellow",
+    opacity: 1.0,
+    code: [255, 255, 0]
+  ),
+  color(
+    name: "iconYellow",
+    opacity: 1.0,
+    code: [255, 170, 51]
+  ),
 
 ];
 

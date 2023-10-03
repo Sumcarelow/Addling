@@ -54,6 +54,7 @@ class AddressSearch extends SearchDelegate<Suggestion> {
           : snapshot.hasData
           ? ListView.builder(
         itemBuilder: (context, index) => ListTile(
+          leading: Icon(Icons.location_on, color: Colors.grey,),
           title:
           Text((snapshot.data![index]).description),
           onTap: () {

@@ -10,7 +10,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../extras/colors.dart';
 import '../extras/data.dart';
-import 'home.dart';
+import '../extras/variables.dart';
+import 'main_tabs/home.dart';
 
 
 class PaymentMethod extends StatefulWidget {
@@ -33,7 +34,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
   var url = Uri.parse('https://checkout-online.yoco.com/checkouts');
   void paymentGateWay(String token) async {
-    print("We are here on the final stage............................\n.........................\n");
+    //print("We are here on the final stage............................\n.........................\n");
     setState(() {
       //isLoading = true;
     });
@@ -50,7 +51,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           "token": token,
           'amount': int.parse(widget.price)/0.01, //grandTotal,
           'currency': 'ZAR',
-          "cancelUrl": 'https://www.eleglem.co.za'
+          "cancelUrl": 'https://www.google.co.za'
         })
 
     );
@@ -87,8 +88,8 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
 
   void placeYocoOrder(){
-    DocumentReference docRef = FirebaseFirestore.instance.collection('orderzzzzzz').doc();
-    docRef.set({
+    DocumentReference docRef = FirebaseFirestore.instance.collection(id!).doc();
+    docRef.update({
       'id': docRef.id,
       'customerId': id,
       'customerName': nickname,
@@ -113,7 +114,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
   }
 
   JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
-    print("We are here ............................\n.........................\n");
+   // print("We are here ............................\n.........................\n");
     return JavascriptChannel(
         name: 'Toaster',
         onMessageReceived: (JavascriptMessage message) {
@@ -127,6 +128,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
   ///On Payment return
   onPaymentReturn(String result){
+    print("we make it gents!...............................");
     if (result == 'failed'){
       Fluttertoast.showToast(msg: "Failed ");
     }else {
@@ -172,7 +174,10 @@ class _PaymentMethodState extends State<PaymentMethod> {
         ),
         leading: IconButton(
           onPressed: (){
-            Navigator.pop(context);
+            setState(() {
+              appBodyIndex = 2;
+            });
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
           },
           icon: Icon(Icons.arrow_back, color: Colors.white,),
         ),
@@ -191,7 +196,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           },
           gestureNavigationEnabled: true,
           onPageFinished: (value){
-            //print("Check me out: ...........$value");
+            print("Check me out: ...........$value");
           },
           navigationDelegate: (req){
             print("This is it: .................... ${req.url}");

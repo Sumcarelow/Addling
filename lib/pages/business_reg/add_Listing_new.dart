@@ -10,7 +10,7 @@ import 'dart:io';
 import '../../extras/colors.dart';
 import '../../extras/data.dart';
 import '../../extras/variables.dart';
-import '../home.dart';
+import '../main_tabs/home.dart';
 
 class AddListingNew extends StatefulWidget {
   const AddListingNew({Key? key}) : super(key: key);

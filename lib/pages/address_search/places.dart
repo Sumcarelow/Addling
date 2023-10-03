@@ -1,7 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_api_headers/google_api_headers.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart';
+
+class Coordinates {
+  final lat, long;
+  
+  Coordinates(this.lat, this.long);
+}
 
 class Place {
   String streetNumber;
@@ -47,7 +55,7 @@ class PlaceApiProvider {
 
   Future<List<Suggestion>> fetchSuggestions(String input, String lang) async {
     final request =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&types=address&language=$lang&components=country:ch&key=$apiKey&sessiontoken=$sessionToken';
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&types=address&language=$lang&components=country:za&key=$apiKey&sessiontoken=$sessionToken';
     final response = await client.get(Uri.parse(request));
 
     if (response.statusCode == 200) {
@@ -81,6 +89,7 @@ class PlaceApiProvider {
         final place = Place(streetNumber: '', street: '', city: '', zipCode: '');
         components.forEach((c) {
           final List type = c['types'];
+          //print('Look at me now .... ${result}...............');
           if (type.contains('street_number')) {
             place.streetNumber = c['long_name'];
           }
@@ -101,4 +110,23 @@ class PlaceApiProvider {
       throw Exception('Failed to fetch suggestion');
     }
   }
+}
+
+Future<Coordinates> displayPrediction(String p) async {
+  var latt, longg;
+  if (p != null) {
+    // get detail (lat/lng)
+    GoogleMapsPlaces _places = GoogleMapsPlaces(
+      apiKey: "AIzaSyANBLmOODXkoglo2c77Zri8ErkiN0k8KBY",
+      apiHeaders: await GoogleApiHeaders().getHeaders(),
+    );
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p);
+    final lati = detail.result.geometry?.location.lat;
+    final lng = detail.result.geometry?.location.lng;
+
+    latt =  detail.result.geometry?.location.lat;
+    longg =  detail.result.geometry?.location.lng;
+
+  }
+  return Coordinates(latt, longg);
 }

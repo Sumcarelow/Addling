@@ -3,7 +3,9 @@
 ///
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 /// Select date and Time Functions
 ///
@@ -170,6 +172,86 @@ Future<String> selectTime(BuildContext context, String day, String kind, TextEdi
   }
   return Tcontrol.text;
 
+}
+
+///Distance between two coordinates
+double calculateDistance(lat1, lon1, lat2, lon2){
+  var p = 0.017453292519943295;
+  var a = 0.5 - cos((lat2 - lat1) * p)/2 +
+      cos(lat1 * p) * cos(lat2 * p) *
+          (1 - cos((lon2 - lon1) * p))/2;
+  return 12742 * asin(sqrt(a));
+}
+
+///Calculate number of coins for wallet amount
+double coinsCalculator(double amount){
+  double total;
+  ///Conversion
+  total = (amount * 50)/600;
+  return total;
+}
+
+///Calculate wallet cost from coins
+double walletCalculator(double amount){
+  double total;
+  ///Conversion
+  total = (amount )/0.05;
+  return total;
+}
+
+
+class CardMonthInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var newText = newValue.text;
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+    var buffer = StringBuffer();
+    for (int i = 0; i < newText.length; i++) {
+      buffer.write(newText[i]);
+      var nonZeroIndex = i + 1;
+      if (nonZeroIndex % 2 == 0 && nonZeroIndex != newText.length) {
+        buffer.write('/');
+      }
+    }
+    var string = buffer.toString();
+    return newValue.copyWith(
+        text: string,
+        selection: TextSelection.collapsed(offset: string.length));
+  }
+}
+
+
+class CardNumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+    var buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+      var nonZeroIndex = i + 1;
+      if (nonZeroIndex % 4 == 0 && nonZeroIndex != text.length) {
+        buffer.write('  '); // Add double spaces.
+      }
+    }
+    var string = buffer.toString();
+    return newValue.copyWith(
+        text: string,
+        selection: TextSelection.collapsed(offset: string.length));
+  }
+}
+
+///Find Number of Days between two dates
+int daysBetween(DateTime from, DateTime to) {
+  from = DateTime(from.year, from.month, from.day);
+  to = DateTime(to.year, to.month, to.day);
+  return (to.difference(from).inHours / 24).round();
 }
 
 

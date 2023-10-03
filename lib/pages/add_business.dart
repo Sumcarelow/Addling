@@ -1,10 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:adlinc/extras/data.dart';
-import 'package:adlinc/pages/business_reg/fun_and_games.dart';
-import 'package:adlinc/pages/business_reg/healthcare.dart';
-import 'package:adlinc/pages/business_reg/home_care.dart';
-import 'package:adlinc/pages/business_reg/restaurants.dart';
-import 'package:adlinc/pages/business_reg/self_love.dart';
+import 'package:adlinc/pages/business_reg/add_bait.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
@@ -22,9 +19,7 @@ import 'dart:io';
 import '../extras/colors.dart';
 import 'address_search/address_searching.dart';
 import 'address_search/places.dart';
-import 'business_reg/accomodation.dart';
-import 'business_reg/add_Listing_new.dart';
-import 'home.dart';
+import 'main_tabs/home.dart';
 import 'package:uuid/uuid.dart';
 
 class AddBusiness extends StatefulWidget {
@@ -35,11 +30,13 @@ class AddBusiness extends StatefulWidget {
 }
 
 class _AddBusinessState extends State<AddBusiness> {
-  ///Form Variables
-  late String id, docID = '', name, description, businessEmail, phone, policy, coverImageUrl = logoURL, policyType = policyTypes[0],
-      logo = logoURL, address, group = '',
+
+///Form Variables
+  late String id, docID = '', name, description, businessEmail, phone, website, coverImageUrl = logoURL, policyType = policyTypes[0],
+      logo = logoURL, address, group = '', policy = '',
       category = 'Please select your business Type for Bookings',
       subCategory = 'Please select your business sub-category';
+
   List<String> categoriesList = ['Please select your business Type for Bookings'];
   List<Category> mainCategoryList = [];
   List<String> subCategoriesList = [];
@@ -47,6 +44,10 @@ class _AddBusinessState extends State<AddBusiness> {
   List<DocumentSnapshot> subCategories = [];
   List<dynamic> businessPictures = [];
   List<businessDay> businessHours = [];
+  List<SocialMedia> businessSocials = [];
+
+
+///Text Field Controllers
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -55,6 +56,16 @@ class _AddBusinessState extends State<AddBusiness> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController policyController = TextEditingController();
+  final TextEditingController websiteController = TextEditingController();
+  final TextEditingController facebookController = TextEditingController();
+  final TextEditingController youtubeController = TextEditingController();
+  final TextEditingController linkedInController = TextEditingController();
+  final TextEditingController tiktokController = TextEditingController();
+  final TextEditingController twitterController = TextEditingController();
+  final TextEditingController instagramController = TextEditingController();
+
+
+///Text Field Focus Nodes
   final FocusNode focusNodeUserEmail = FocusNode();
   final FocusNode focusNodeUserName = FocusNode();
   final FocusNode focusNodeDescription = FocusNode();
@@ -63,13 +74,22 @@ class _AddBusinessState extends State<AddBusiness> {
   final FocusNode focusNodeAddress = FocusNode();
   final FocusNode focusNodeDropDown = FocusNode();
   final FocusNode focusNodePolicy = FocusNode();
+  final FocusNode focusNodeWebsite = FocusNode();
+  final FocusNode focusNodeFacebook = FocusNode();
+  final FocusNode focusNodeInstagram = FocusNode();
+  final FocusNode focusNodeYoutube = FocusNode();
+  final FocusNode focusNodeLinkedIn = FocusNode();
+  final FocusNode focusNodeTwitter = FocusNode();
+  final FocusNode focusNodeTikTok = FocusNode();
+
 
   late GlobalKey dropdownKey;
   late Widget nextPage = Home();
   var policyDoc, coverImage;
+  late Coordinates coords;
 
 
-  ///Select PDF Policy doc from device
+///Select PDF Policy doc from device
   Future getDoc() async {
     var images = (
         await FilePicker.platform.pickFiles(
@@ -139,7 +159,7 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
-  ///Select Business Cover Image
+///Select Business Cover Image
   Future getCoverImage() async {
     var images = (
         await FilePicker.platform.pickFiles(
@@ -155,7 +175,7 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-  ///load Local Storage Info
+///load Local Storage Info
   void loadData() async{
     prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -163,35 +183,44 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
-  ///Shared Preferences instance
+///Shared Preferences instance
   late SharedPreferences prefs;
 
-  ///Toggle show password
+///Toggle show password
   bool showPassword = false;
   bool showAcceptTC = false;
   var profileImage;
 
-  ///Select Category Icon
+///Select Category Icon
   IconData getIcon(String cat) {
     IconData icon = Icons.add;
     switch (cat){
-      case 'HOME CARE' :
-        icon = Icons.home_outlined;
+      case 'TECH' :
+        icon = Icons.computer_rounded;
             break;
-       case 'HEALTHCARE':
-         icon = Icons.health_and_safety_outlined;
+       case 'BEAUTY':
+         icon = Icons.clean_hands_rounded;
          break;
-      case 'SELF LOVE':
-        icon = Icons.handshake_outlined;
+      case 'TRAVEL':
+        icon = Icons.mode_of_travel_rounded;
         break;
-      case 'HOSPITALITY & TOURISM':
-        icon = Icons.travel_explore_outlined;
+      case 'STATIONARY':
+        icon = Icons.menu_book_rounded;
+        break;
+      case 'FOOD':
+        icon = Icons.fastfood_rounded;
+        break;
+      case 'FASHION':
+        icon = Icons.shopping_bag_rounded;
+        break;
+      case 'JEWELLERY':
+        icon = Icons.diamond_rounded;
         break;
     }
     return icon;
   }
 
-  ///Fetch Categories from Firebase using level as key
+///Fetch Categories from Firebase using level as key
   void getCategories(String level) async{
     ///Get Firebase Docs
     final QuerySnapshot result =
@@ -231,8 +260,7 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-
-  ///When Add Business Button is pressed
+///When Add Business Button is pressed
   void onRegisterBusinessPress() async{
     //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListing(bizID: "documents[0].id", group: 'B&B',)));
     ///Unfocus all nodes
@@ -258,7 +286,7 @@ class _AddBusinessState extends State<AddBusiness> {
       Fluttertoast.showToast(msg: "Business already exists, please use login or forgot password.");
     } else {
       ///Check if T&C's are Accepted
-      if(showAcceptTC && category != 'Please select your business Type for Bookings' && subCategory != 'Please select your business sub-category'){
+      if(showAcceptTC && category != 'Please select your business Type for Bookings'){
         postData();
       } else {
         Fluttertoast.showToast(msg: "Please accept the terms and conditions to proceed and select categories for your business.");
@@ -266,7 +294,7 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-  ///Post data to Firebase
+///Post data to Firebase
   void postData() async{
     ///Add new user to Firebase
     DocumentReference docRef = FirebaseFirestore.instance.collection('businesses').doc();
@@ -278,16 +306,16 @@ class _AddBusinessState extends State<AddBusiness> {
       'address': address,
       'bio': description,
       'category': category,
-      'subCategory': subCategory,
+      'website': website,
       'logo': logo,
-      //'coverImage': coverImageUrl,
       'status': 'pending',
       'type': 'booking',
       'favourites': 0,
       'comments': 0,
       'rating': 0,
       'ownerID': id,
-      'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString() + " " + DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'time': DateFormat('hh:mm:ss').format(DateTime.now()).toString(),
+      'dateRegistered': DateFormat('dd MMMM yyyy').format(DateTime.now()).toString(),
       'operationTimes': {
         'Monday': '${mondayOpenController.text} - ${mondayCloseController.text}',
         'Tuesday': '${tuesdayOpenController.text} - ${tuesdayCloseController.text}',
@@ -296,7 +324,13 @@ class _AddBusinessState extends State<AddBusiness> {
         'Friday': '${fridayOpenController.text} - ${fridayCloseController.text}',
         'Saturday': '${saturdayOpenController.text} - ${saturdayCloseController.text}',
         'Sunday': '${sundayOpenController.text} - ${sundayCloseController.text}'
-      }
+      },
+      'coordinates': {
+        'lat': coords.lat,
+        'long': coords.long,
+      },
+      'socials': jsonEncode(businessSocials)
+
     }).then((value) async {
 
       ///Upload Business Pictures
@@ -307,85 +341,17 @@ class _AddBusinessState extends State<AddBusiness> {
       ///Save Business Firebase Data to local Storage
       await prefs.setString('bizID', docRef.id);
       await prefs.setString('bizName', name);
+      await prefs.setString('bizAddress', address);
       await prefs.setString('bizSubCategory', subCategory);
 
     });
     setState(() {
       docID = docRef.id;
     });
-    ///Set Nav
-    //setGroupNav(subCategory);
-    if(subCategory == 'B&B' || subCategory == 'HOTEL' || subCategory == 'VACATION DESTINATION' ){
 
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  Accommodation(group: 'ACCOMMODATION', bizID: docID)));
-
-    }
-    else if (subCategory == 'RESTAURANTS'){
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-     // Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
-     Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurant(group: 'RESTAURANTS', bizID: docID)));
-    }
-    else if (subCategory == 'FUN & GAMES'){
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
-     Navigator.push(context, MaterialPageRoute(builder: (context) => FunAndGames(group: 'games', bizID: docID)));
-    }
-    else if (
-            subCategory == 'SELF LOVE' ||
-            subCategory == 'MAKE-UP ARTIST' ||
-            subCategory == 'HAIRDRESSING' ||
-            subCategory == 'MANI AND PEDI' ||
-            subCategory == 'TATTOO PARLOUR' ||
-            subCategory == 'BODY PIERCING' ||
-            subCategory == 'NAIL TECHNICIAN' ||
-            subCategory == 'MASSAGE SALON/THERAPIST' ||
-            subCategory == 'FACIAL SPA' ||
-            subCategory == 'FOOT MASSAGE' ||
-            subCategory == 'SKIN CARE CONSULTING'
-    ){
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SelfLove(group: 'self', bizID: docID)));
-    }
-    else if(
-    subCategory == 'HEALTHCARE' ||
-    subCategory == 'DENTIST' ||
-    subCategory == 'PHYSICIAN' ||
-    subCategory == 'GENERAL PRACTISIONER' ||
-    subCategory == 'THERAPIST' ||
-    subCategory == 'DERMATOLOGIST' ||
-    subCategory == 'COUNSELLOR'
-    ){
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Healthcare(group: 'healthcare', bizID: docID)));
-    }
-    else if (
-    subCategory == 'HOME CARE' ||
-    subCategory == 'LAWN-MOWER' ||
-    subCategory == 'PLUMBING' ||
-    subCategory == 'CARPET CLEANING' ||
-    subCategory == 'MOVERS' ||
-    subCategory == 'ELECTRICIAN' ||
-    subCategory == 'MECHANIC' ||
-    subCategory == 'ROOF REPAIR' ||
-    subCategory == 'FLOORING' ||
-    subCategory == 'GUTTER CLEAN' ||
-    subCategory == 'PAINTER' ||
-    subCategory == 'LANDSCAPER'
-
-    ) {
-      Fluttertoast.showToast(msg: "Business Registration Successful");
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => AddListingNew()));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeCare(group: 'homeCare', bizID: docID)));
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) => AddBait(bizID: docRef.id, bizAddress: address, bizName: name, bizLogo: logo, bizCategory: category,)));
 
   }
-
 
 ///Set Group variable according to the subCategory
   void setGroup(String category){
@@ -462,112 +428,8 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-///Set Next Reg Page variable according to the subCategory
 
-  void setGroupNav(String category){
-    //print("I come in with: $category");
-
-    switch (subCategory){
-      case 'B&B':
-      case'HOTEL':
-      case 'VACATION DESTINATION':
-        {
-
-          print("We are here now");
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      Accommodation(group: 'ACCOMMODATION', bizID: docID)));
-
-        }
-        break;
-      case 'RESTAURANT':
-        {
-          print("We are here now");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurant(group: 'RESTAURANT', bizID: docID)));
-          setState(() {
-            //nextPage = Restaurant(group: 'RESTAURANT', bizID: docID);
-          });
-        }
-        break;
-      case 'FUN & GAMES':
-        {
-          print("We are here now");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => FunAndGames(group: 'games', bizID: docID)));
-          setState(() {
-            nextPage = FunAndGames(group: 'games', bizID: docID);
-          });
-        }
-        break;
-      case 'SELF LOVE':
-      case'MAKE-UP ARTIST':
-      case 'HAIRDRESSING':
-      case 'MANI AND PEDI':
-      case 'TATTOO PARLOUR':
-      case 'BODY PIERCING':
-      case 'NAIL TECHNICIAN':
-      case 'MASSAGE SALON/THERAPIST':
-      case 'FACIAL SPA':
-      case 'FOOT MASSAGE':
-      case 'SKIN CARE CONSULTING':
-        {
-          print("We are here now");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SelfLove(group: 'self', bizID: docID)));
-          setState(() {
-            nextPage = SelfLove(group: 'self', bizID: docID);
-          });
-        }
-        break;
-
-
-      case 'HEALTHCARE':
-      case 'DENTIST':
-      case 'PHYSICIAN':
-      case 'GENERAL PRACTISIONER':
-      case 'THERAPIST':
-      case 'DERMATOLOGIST':
-      case 'COUNSELLOR':
-        {
-          print("We are here now");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Healthcare(group: 'healthcare', bizID: docID)));
-          setState(() {
-            nextPage = Healthcare(group: 'healthcare', bizID: docID);
-          });
-        }
-        break;
-      case 'HOME CARE':
-      case 'LAWN-MOWER':
-      case 'CLEANING':
-      case 'PLUMBING':
-      case 'CARPET CLEANING':
-      case 'MOVERS':
-      case 'ELECTRICIAN':
-      case 'MECHANIC':
-      case 'ROOF REPAIR':
-      case 'FLOORING':
-      case 'GUTTER CLEAN':
-      case 'HANDYMAN':
-      case 'PAINTER':
-      case 'LANDSCAPER':
-        {
-          print("We are here now");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeCare(group: 'homeCare', bizID: docID)));
-          setState(() {
-            nextPage = HomeCare(group: 'homeCare', bizID: docID);
-          });
-        }
-        break;
-
-      default:
-        {
-
-        }
-    }
-    //print("I exzit with $nextPage and $docID");
-  }
-
-  ///Upload Business Logo to firebase storage
+///Upload Business Logo to firebase storage
   Future uploadProfilePicture() async {
 
     ///Set OnLoading Screen
@@ -616,7 +478,7 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
-  ///Upload PDF Document
+///Upload PDF Document
   Future uploadPolicyDoc() async {
 
     ///Set OnLoading Screen
@@ -665,8 +527,7 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
-
-  ///Upload PDF Document
+///Upload PDF Document
   Future uploadCoverImage() async {
 
     ///Set OnLoading Screen
@@ -715,7 +576,7 @@ class _AddBusinessState extends State<AddBusiness> {
     });
   }
 
-  ///Load image from phone storage
+///Load image from phone storage
   Future getImage() async {
     var images = (
         await FilePicker.platform.pickFiles(
@@ -731,9 +592,7 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-  ///Load Business Pictures
-
-  ///Load image from phone storage
+///Load image from phone storage
   Future getImages() async {
     var images = (
         await FilePicker.platform.pickFiles(
@@ -749,7 +608,7 @@ class _AddBusinessState extends State<AddBusiness> {
     }
   }
 
-  ///Filter Sub Categories
+///Filter Sub Categories
   void filterSubCategories(String value){
     setState(() {
       //subCategory = 'Please select your business sub-category';
@@ -775,7 +634,7 @@ class _AddBusinessState extends State<AddBusiness> {
 
   }
 
-  ///On Main Category Drop Down Select
+///On Main Category Drop Down Select
   void mainCategorySelect(String? value){
     //Set category variable
     this.setState(() {
@@ -786,7 +645,7 @@ class _AddBusinessState extends State<AddBusiness> {
     filterSubCategories(value!);
   }
 
-  ///Dropdown Widgets
+///Dropdown Widgets
   Widget categoryDropDown(){
     return DropdownButton<String>(
         focusNode: focusNodeDropDown,
@@ -815,10 +674,10 @@ class _AddBusinessState extends State<AddBusiness> {
             ? Container()
             : Icon(getIcon(element)),
             Text('$element \n$sub'),
-            element == 'Please select your business Type for Bookings'
+           /* element == 'Please select your business Type for Bookings'
                 ? Container()
                 :
-            subMenuCategoryDropDown(element),
+            subMenuCategoryDropDown(element),*/
           ],
         ),
       );
@@ -863,7 +722,7 @@ class _AddBusinessState extends State<AddBusiness> {
     );
   }
 
-  ///Policy document section
+///Policy document section
   Widget textInput(){
     return Container(
       margin: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -889,12 +748,6 @@ class _AddBusinessState extends State<AddBusiness> {
 
           ),
           controller: policyController,
-          validator: (value) {
-            if (value == null) {
-              return 'Please enter your Product Name';
-            }
-            return null;
-          },
           onChanged: (value) {
             policy = value;
           },
@@ -904,8 +757,7 @@ class _AddBusinessState extends State<AddBusiness> {
     );
   }
 
-
-  ///Dropdown for Policy type
+///Dropdown for Policy type
   Widget policyTypeDropDown() {
     return DropdownButton<String>(
       value: policyType,
@@ -931,18 +783,895 @@ class _AddBusinessState extends State<AddBusiness> {
     );
   }
 
-
   void getAmenities() async{
    // print("STarted pilling");
     final QuerySnapshot result =
     await FirebaseFirestore.instance.collection('newAmenities').get();
    // print("Done pulling");
     final List<DocumentSnapshot> documents = result.docs;
-
-
   }
 
-  ///Initial State
+///Show Add Socials Dialog
+  Future<bool> onSocialsAddPress() {
+    openSocialsAddDialog();
+    return Future.value(false);
+  }
+
+///Add Socials Dialog
+  Future<Null> openSocialsAddDialog() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            contentPadding:
+            EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
+            children: <Widget>[
+              Container(
+                color: Colors.blueAccent,
+                margin: EdgeInsets.all(0.0),
+                padding: EdgeInsets.only(bottom: 10.0, top: 10.0),
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      child: Icon(
+                        Icons.info_outline_rounded,
+                        size: 30.0,
+                        color: Colors.white,
+                      ),
+                      margin: EdgeInsets.only(bottom: 10.0),
+                    ),
+                    Text(
+                      'Add Social Media Links',
+                      style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    Text(
+                      'Please enter all business social media links.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 16,)),
+                    ),
+                  ],
+                ),
+              ),
+              ///Form
+              Form(
+                child: Column(
+                  children: [
+                    ///Facebook
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'Facebook',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: facebookController,
+
+                          onChanged: (value) {
+                            setState(() {
+                              businessSocials.add(SocialMedia(name: "Facebook", icon: 'assets/icons/fb.svg', link: value));
+                            });
+                          },
+                          focusNode: focusNodeFacebook,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///Instagram
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'Instagram link',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: instagramController,
+
+                          onChanged: (value) {
+                            businessSocials.add(SocialMedia(name: "Instagram", icon: 'assets/icons/insta.svg', link: value));
+                          },
+                          focusNode: focusNodeInstagram,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///Twitter
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'Twitter link',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: twitterController,
+
+                          onChanged: (value) {
+                            businessSocials.add(SocialMedia(name: "Twitter", icon: 'assets/icons/twitter.svg', link: value));
+                          },
+                          focusNode: focusNodeTwitter,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///TIKTOK
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'TikTok link',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: tiktokController,
+
+                          onChanged: (value) {
+                            businessSocials.add(SocialMedia(name: "TikTok", icon: 'assets/icons/tiktok.svg', link: value));
+                          },
+                          focusNode: focusNodeTikTok,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///YOUTUBE
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'Youtube link',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: youtubeController,
+
+                          onChanged: (value) {
+                            businessSocials.add(SocialMedia(name: "Youtube", icon: 'assets/icons/youtube.svg', link: value));
+                          },
+                          focusNode: focusNodeYoutube,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///LINKEDIN
+                    Container(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(primaryColor: Colors.blueAccent, splashColor:Colors.blueAccent),
+                        child: TextFormField(
+                          autocorrect: false,
+                          cursorColor: Colors.blueAccent,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold
+                          ),
+                          decoration: InputDecoration(
+
+                            disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            focusColor: Colors.blueAccent,
+                            fillColor: Colors.blueAccent,
+                            labelStyle: TextStyle(color: Colors.blueAccent),
+                            hintText: 'LinkedIn link',
+                            contentPadding: EdgeInsets.all(5.0),
+                            hintStyle: TextStyle(color: Colors.grey,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
+                            ),
+
+                          ),
+                          controller: linkedInController,
+
+                          onChanged: (value) {
+                            businessSocials.add(SocialMedia(name: "LinkedIn", icon: 'assets/icons/linkedin.svg', link: value));
+                          },
+                          focusNode: focusNodeLinkedIn,
+                        ),
+                      ),
+                      margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    ),
+
+                    ///Submit Button
+                    ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:  MaterialStatePropertyAll<Color>(Colors.lightBlue),
+                        ),
+                        //color: colors[2],
+                        onPressed: (){
+                          //Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                          //loginFormKey.currentState!.validate()
+                          Fluttertoast.showToast(msg: "Information saved.");
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.07,
+                              right: MediaQuery.of(context).size.width * 0.07),
+                          child: Text("Submit",
+                              style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
+                          ),
+                        )
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        });
+  }
+
+///Show Add Business Hours Dialog
+  Future<bool> onBusinessHoursAddPress() {
+    openBusinessHoursAddDialog();
+    return Future.value(false);
+  }
+
+///Add Business Hours Dialog
+  Future<Null> openBusinessHoursAddDialog() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            contentPadding:
+            EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
+            children: <Widget>[
+              Container(
+                color: Colors.blueAccent,
+                margin: EdgeInsets.all(0.0),
+                padding: EdgeInsets.only(bottom: 10.0, top: 10.0),
+                height: 100.0,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      child: Icon(
+                        Icons.timer,
+                        size: 30.0,
+                        color: Colors.white,
+                      ),
+                      margin: EdgeInsets.only(bottom: 10.0),
+                    ),
+                    Text(
+                      'Add Business Hours',
+                      style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    Text(
+                      'Please enter all business hours.',
+                      style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 16,)),
+                    ),
+                  ],
+                ),
+              ),
+              ///Form
+              Form(
+                child: Column(
+                  children: [
+
+                    ///Monday
+                    Padding(
+                      padding: const EdgeInsets.only(left:8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Monday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Monday", "open",mondayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 6),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onChanged: (val) {
+                                    //print("this is where it is at $val");
+                                    setState((){
+                                      mondayOpen = val;
+                                    });
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: mondayOpenController,
+                                  focusNode: focusNodeMondayOpen,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Monday", "close", mondayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 6),
+                                width: MediaQuery.of(context).size.width * 0.02,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    mondayClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: mondayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Tuesday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Tuesday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Tuesday", "open", tuesdayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    tuesdayOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: tuesdayOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Tuesday", "close", tuesdayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    tuesdayClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: tuesdayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Wednesday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Wednesday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Wednesday", "open", wedOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    wedOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: wedOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Wednesday", "close", wedCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    wedClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: wedCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Thursday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Thursday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Thursday", "open", thursdayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    thursOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: thursdayOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Thursday", "close", thursdayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    thursClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: thursdayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Friday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Friday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Friday", "open", fridayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    friOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: fridayOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Friday", "close", fridayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    friClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: fridayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Saturday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Saturday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Saturday", "open", saturdayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    satOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: saturdayOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Saturday", "close", saturdayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    satClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: saturdayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ///Sunday
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                              "Sunday"
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Sunday", "open", sundayOpenController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    sundayOpen = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: sundayOpenController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Opening Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                selectTime(context, "Sunday", "close", sundayCloseController);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.09,
+                                alignment: Alignment.center,
+                                //decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: TextFormField(
+                                  style: const TextStyle(fontSize: 15),
+                                  textAlign: TextAlign.center,
+                                  onSaved: (String? val) {
+                                    sundayClose = val!;
+                                  },
+                                  enabled: false,
+                                  keyboardType: TextInputType.text,
+                                  controller: sundayCloseController,
+                                  decoration: const InputDecoration(
+                                      disabledBorder:
+                                      UnderlineInputBorder(borderSide: BorderSide.none),
+                                      labelText: 'Closing Time',
+                                      contentPadding: EdgeInsets.all(5)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    ///Submit Button
+                    ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:  MaterialStatePropertyAll<Color>(Colors.lightBlue),
+                        ),
+                        //color: colors[2],
+                        onPressed: (){
+                          //Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                          //loginFormKey.currentState!.validate()
+                          Fluttertoast.showToast(msg: "Please fill in the missing or incorrect information.");
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.07,
+                              right: MediaQuery.of(context).size.width * 0.07),
+                          child: Text("Submit",
+                              style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
+                          ),
+                        )
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        });
+  }
+
+
+
+///Initial State
   @override
   void initState() {
     // TODO: implement initState
@@ -972,15 +1701,19 @@ class _AddBusinessState extends State<AddBusiness> {
           },
           icon: const Icon(Icons.close), color: getColor('red', 1.0),),
       ),
+
+///App Body
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.05,
             ),
+
             ///Upload Pic Section
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1061,201 +1794,280 @@ class _AddBusinessState extends State<AddBusiness> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+
                     ///Business Name
-                    Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                        child: TextFormField(
-                          autocorrect: false,
-                          cursorColor: Colors.grey,
-                          style: const TextStyle(
-                              color: Colors.grey
-                          ),
-                          decoration: const InputDecoration(
-
-                            disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5))
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 0.4, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          child: TextFormField(
+                            autocorrect: false,
+                            cursorColor: Colors.grey,
+                            style: const TextStyle(
+                                color: Colors.grey
                             ),
-                            focusColor: Colors.grey,
-                            fillColor: Colors.grey,
-                            labelStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Business Name',
-                            contentPadding: EdgeInsets.all(5.0),
-                            hintStyle: TextStyle(color: Colors.grey),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5))
+                              ),
+                              focusColor: Colors.grey,
+                              fillColor: Colors.grey,
+                              labelStyle: TextStyle(color: Colors.grey),
+                              hintText: 'Business Name',
+                              contentPadding: EdgeInsets.all(15.0),
+                              hintStyle: TextStyle(color: Colors.grey),
 
+                            ),
+                            controller: nameController,
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please enter your Business Name';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              name = value;
+                            },
+                            focusNode: focusNodeUserName,
                           ),
-                          controller: nameController,
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please enter your Business Name';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            name = value;
-                          },
-                          focusNode: focusNodeUserName,
                         ),
                       ),
                     ),
-                    ///Business Name
-                    Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                        child: TextFormField(
-                          autocorrect: false,
-                          cursorColor: Colors.grey,
-                          style: const TextStyle(
-                              color: Colors.grey
-                          ),
-                          decoration: const InputDecoration(
 
-                            disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5))
+                    ///Business Bio
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 0.4, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          child: TextFormField(
+                            autocorrect: false,
+                            cursorColor: Colors.grey,
+                            style: const TextStyle(
+                                color: Colors.grey
                             ),
-                            focusColor: Colors.grey,
-                            fillColor: Colors.grey,
-                            labelStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Business Bio',
-                            contentPadding: EdgeInsets.all(5.0),
-                            hintStyle: TextStyle(color: Colors.grey),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5))
+                              ),
+                              focusColor: Colors.grey,
+                              fillColor: Colors.grey,
+                              labelStyle: TextStyle(color: Colors.grey),
+                              hintText: 'Business Bio',
+                              contentPadding: EdgeInsets.all(5.0),
+                              hintStyle: TextStyle(color: Colors.grey),
 
+                            ),
+                            controller: descriptionController,
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please enter your Business Bio';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              description = value;
+                            },
+                            focusNode: focusNodeDescription,
                           ),
-                          controller: descriptionController,
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please enter your Business Bio';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            description = value;
-                          },
-                          focusNode: focusNodeDescription,
                         ),
                       ),
                     ),
+
                     ///Business Email Address
-                    Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: getColor('green', 1.0), splashColor: getColor('green', 1.0)),
-                        child: TextFormField(
-                          autocorrect: false,
-                          cursorColor: Colors.grey,
-                          style: const TextStyle(
-                              color: Colors.grey
-                          ),
-                          decoration: InputDecoration(
-                            disabledBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5))
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 0.4, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: getColor('green', 1.0), splashColor: getColor('green', 1.0)),
+                          child: TextFormField(
+                            autocorrect: false,
+                            cursorColor: Colors.grey,
+                            style: const TextStyle(
+                                color: Colors.grey
                             ),
-                            focusColor: getColor('green', 1.0),
-                            fillColor: getColor('green', 1.0),
-                            labelStyle: TextStyle(color: getColor('green', 1.0),),
-                            hintText: 'Business Email',
-                            contentPadding: const EdgeInsets.all(5.0),
-                            hintStyle: const TextStyle(color: Colors.grey),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              disabledBorder: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5))
+                              ),
+                              focusColor: getColor('green', 1.0),
+                              fillColor: getColor('green', 1.0),
+                              labelStyle: TextStyle(color: getColor('green', 1.0),),
+                              hintText: 'Business Email',
+                              contentPadding: const EdgeInsets.all(5.0),
+                              hintStyle: const TextStyle(color: Colors.grey),
 
+                            ),
+                            controller: emailController,
+                            validator: (value) {
+                              if (!EmailValidator.validate(value!)) {
+                                return 'Please enter a valid email address';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              businessEmail = value;
+                            },
+                            focusNode: focusNodeUserEmail,
                           ),
-                          controller: emailController,
-                          validator: (value) {
-                            if (!EmailValidator.validate(value!)) {
-                              return 'Please enter a valid email address';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            businessEmail = value;
-                          },
-                          focusNode: focusNodeUserEmail,
                         ),
                       ),
                     ),
+
                     ///Phone Number
-                    Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          style: const TextStyle(
-                              color: Colors.grey
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(decoration: BoxDecoration(
+                          border: Border.all(width: 0.4, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(30)
+                      ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            style: const TextStyle(
+                                color: Colors.grey
+                            ),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Business Phone',
+                              contentPadding: EdgeInsets.all(5.0),
+                              hintStyle: TextStyle(color: Colors.grey),
+                            ),
+                            controller: phoneController,
+                            validator: (value) {
+                              if (value!.length != 10) {
+                                return 'Please enter valid phone number';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              phone = value;
+                            },
+                            focusNode: focusNodePhone,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: 'Business Phone',
-                            contentPadding: EdgeInsets.all(5.0),
-                            hintStyle: TextStyle(color: Colors.grey),
-                          ),
-                          controller: phoneController,
-                          validator: (value) {
-                            if (value!.length != 10) {
-                              return 'Please enter valid phone number';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            phone = value;
-                          },
-                          focusNode: focusNodePhone,
                         ),
                       ),
                     ),
+
                     ///Address
-                    Container(
-                      margin: const EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(primaryColor: Colors.grey),
-                        child: TextFormField(
-                          style: const TextStyle(
-                              color: Colors.grey
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 0.4, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(30)
+                      ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          child: TextFormField(
+                            style: const TextStyle(
+                                color: Colors.grey
+                            ),
+
+                            readOnly: true,
+                            onTap: () async {
+                              final sessionToken = Uuid().v4();
+                              final Suggestion? result = await showSearch(
+                                context: context,
+                                delegate: AddressSearch(),
+                              );
+                              if (result != null) {
+                                final placeDetails = await PlaceApiProvider(sessionToken)
+                                    .getPlaceDetailFromId(result.placeId);
+
+                                var temp = await displayPrediction(result.placeId);
+                                setState(() {
+                                  coords = temp;
+                                  addressController.text = result.description;
+                                  address = result.description;
+                                });
+                              }
+                              // placeholder for our places search later
+                            },
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Business Address',
+                              contentPadding: EdgeInsets.all(5.0),
+                              hintStyle: TextStyle(color: Colors.grey),
+
+                            ),
+                            controller: addressController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Cannot be empty';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              address = value;
+                            },
+                            focusNode: focusNodeAddress,
                           ),
+                        ),
+                      ),
+                    ),
 
-                          readOnly: true,
-                          onTap: () async {
-                            final sessionToken = Uuid().v4();
-                            final Suggestion? result = await showSearch(
-                              context: context,
-                              delegate: AddressSearch(),
-                            );
-                            if (result != null) {
-                              final placeDetails = await PlaceApiProvider(sessionToken)
-                                  .getPlaceDetailFromId(result.placeId);
-                              //print("Here I am ........... ${result.placeId}");
+                    ///Website
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 0.4, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                        margin: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(primaryColor: Colors.grey),
+                          child: TextFormField(
+                            autocorrect: false,
+                            cursorColor: Colors.grey,
+                            style: const TextStyle(
+                                color: Colors.grey
+                            ),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5))
+                              ),
+                              focusColor: Colors.grey,
+                              fillColor: Colors.grey,
+                              labelStyle: TextStyle(color: Colors.grey),
+                              hintText: 'Business Website',
+                              contentPadding: EdgeInsets.all(5.0),
+                              hintStyle: TextStyle(color: Colors.grey),
 
-                              setState(() {
-                                addressController.text = result.description;
-                                address = result.description;
-                               // _streetNumber = placeDetails.streetNumber;
-                                //_street = placeDetails.street;
-                                //_city = placeDetails.city;
-                                //_zipCode = placeDetails.zipCode;
-                              });
-                            }
-                            // placeholder for our places search later
-                          },
-                          decoration: const InputDecoration(
-                            hintText: 'Business Address',
-                            contentPadding: EdgeInsets.all(5.0),
-                            hintStyle: TextStyle(color: Colors.grey),
-
+                            ),
+                            controller: websiteController,
+                            onChanged: (value) {
+                              website = value;
+                            },
+                            focusNode: focusNodeWebsite,
                           ),
-                          controller: addressController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Cannot be empty';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            address = value;
-                          },
-                          focusNode: focusNodeAddress,
                         ),
                       ),
                     ),
@@ -1264,18 +2076,86 @@ class _AddBusinessState extends State<AddBusiness> {
                     Flexible(
                         child: categoryDropDown()),
 
+                    SizedBox(
+                      height: 10,
+                    ),
+
+                    ///Socials
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: onSocialsAddPress,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.face,
+                              size: 25,
+                              color:  getColor('black', 0.7),
+                            ),
+                            Text('Add Socials',
+                              style:  GoogleFonts.getFont('Roboto',
+                                  textStyle: TextStyle(
+                                    color:  getColor('black', 0.7),
+                                    fontSize: 14,
+                                    //fontWeight: FontWeight.bold
+                                  )),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    ///Business Hours
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: onBusinessHoursAddPress,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.timer,
+                              size: 25,
+                              color:  getColor('black', 0.7),
+                            ),
+                            Text('Add Business Hours',
+                              style:  GoogleFonts.getFont('Roboto',
+                                  textStyle: TextStyle(
+                                    color:  getColor('black', 0.7),
+                                    fontSize: 14,
+                                    //fontWeight: FontWeight.bold
+                                  )),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+
                     ///Product Images
                     businessPictures.isEmpty
                         ? GestureDetector(
                       onTap: getImages,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.camera_alt,
-                          ),
-                          const Text('Upload Business Images')
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                             Icon(
+                              Icons.camera_alt,
+                              size: 25,
+                              color:  getColor('black', 0.7),
+                            ),
+                             Text('Upload Business Images',
+                            style:  GoogleFonts.getFont('Roboto',
+                                textStyle: TextStyle(
+                                    color:  getColor('black', 0.7),
+                                    fontSize: 16,
+                                    //fontWeight: FontWeight.bold
+                                )),
+                            )
+                          ],
+                        ),
                       ),
                     )
                         : Wrap(
@@ -1295,519 +2175,22 @@ class _AddBusinessState extends State<AddBusiness> {
                       }).toList(),
                     ),
 
-
-                    ///Business hours selection
-                    ///Section Header
-                    Text(
-                      "Business Hours:",
-                      style: GoogleFonts.getFont('Roboto', textStyle: TextStyle(color: getColor('black', 0.5), fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                    /// Monday
-                    Padding(
-                      padding: const EdgeInsets.only(left:8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                            "Monday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Monday", "open",mondayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 6),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onChanged: (val) {
-                                    //print("this is where it is at $val");
-                                    setState((){
-                                      mondayOpen = val;
-                                    });
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: mondayOpenController,
-                                  focusNode: focusNodeMondayOpen,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Monday", "close", mondayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 6),
-                                width: MediaQuery.of(context).size.width * 0.02,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    mondayClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: mondayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ///Tuesday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                            "Tuesday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Tuesday", "open", tuesdayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    tuesdayOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: tuesdayOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Tuesday", "close", tuesdayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    tuesdayClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: tuesdayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    SizedBox(
+                      height: 10,
                     ),
 
-                    ///Wednesday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                              "Wednesday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Wednesday", "open", wedOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    wedOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: wedOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Wednesday", "close", wedCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    wedClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: wedCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ///Thursday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                              "Thursday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Thursday", "open", thursdayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    thursOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: thursdayOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Thursday", "close", thursdayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    thursClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: thursdayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ///Friday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                              "Friday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Friday", "open", fridayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    friOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: fridayOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Friday", "close", fridayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    friClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: fridayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ///Saturday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                              "Saturday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Saturday", "open", saturdayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    satOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: saturdayOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Saturday", "close", saturdayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    satClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: saturdayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-
-                    ///Sunday
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text(
-                              "Sunday"
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Sunday", "open", sundayOpenController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    sundayOpen = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: sundayOpenController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Opening Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                selectTime(context, "Sunday", "close", sundayCloseController);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height: MediaQuery.of(context).size.width * 0.09,
-                                alignment: Alignment.center,
-                                //decoration: BoxDecoration(color: Colors.grey[200]),
-                                child: TextFormField(
-                                  style: const TextStyle(fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                  onSaved: (String? val) {
-                                    sundayClose = val!;
-                                  },
-                                  enabled: false,
-                                  keyboardType: TextInputType.text,
-                                  controller: sundayCloseController,
-                                  decoration: const InputDecoration(
-                                      disabledBorder:
-                                      UnderlineInputBorder(borderSide: BorderSide.none),
-                                      labelText: 'Closing Time',
-                                      contentPadding: EdgeInsets.all(5)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ///Business Policy Section
+                /*    ///Business Policy Section
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Business Policy: "),
+                        Text("Business Policy: ",
+                        style:  GoogleFonts.getFont('Roboto',
+                            textStyle: TextStyle(
+                                color:getColor('black', 1.0),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            )),
+                        ),
                         policyTypeDropDown(),
                       ],
                     ),
@@ -1854,7 +2237,7 @@ class _AddBusinessState extends State<AddBusiness> {
                     )
                         : policyType == 'Text'
                     ? textInput()
-                        : Container(),
+                        : Container(),*/
 
                     ///Accept terms and conditions
                     Row(

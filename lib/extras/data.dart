@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 ///Shared Preferences instance
 late SharedPreferences prefs;
+
+///User ID
+String globalUserID = '';
+
 
 ///Transmission types
 List<String> transmissions = [
@@ -43,7 +48,7 @@ List<String> priceFreqs = [
 
 ///Payment Methods
 List<String> payments = [
-  "Cash", "Medical Aid", "Digital Payment"
+  "Cash", "Slasch Pay", "Online Payment"
 ];
 
 ///Policy Types
@@ -203,6 +208,10 @@ List<String> prices = [
   '141', '142', '143', '144', '145', '146', '147', '148', '149', '150'
 ];
 
+List<String> socials = [
+  'LinkedIn', 'Youtube', 'Facebook', 'Instagram', 'Twitter', 'TikTok'
+];
+
 ///location class
 class MyLocation {
   final String name, charge, address;
@@ -241,5 +250,41 @@ class Category {
 class businessDay {
   final String day, openTime, closeTime;
   businessDay({required this.day, required this.openTime, required this.closeTime});
+}
+
+///Social Media Link
+class SocialMedia {
+  final String name, link, icon;
+  SocialMedia({required this.name, required this.icon, required this.link});
+
+  Map toJson()=>{
+    'name': name,
+    'link': link,
+    'icon': icon
+};
+
+}
+
+///Bait Plant
+class BaitPlant {
+  final DocumentSnapshot doc;
+  final List<DocumentSnapshot> pics, likes, followers;
+  final bool like, follow;
+
+  BaitPlant({required this.doc, required this.pics,
+    required this.likes, required this.followers,
+    required this.follow, required this.like,
+    //required this.removed
+  });
+
+}
+
+
+///Business Class
+class BusinessClass {
+  final DocumentSnapshot doc;
+  List<DocumentSnapshot> followers;
+
+  BusinessClass({required this.doc, required this.followers});
 }
 
